@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONSOLE HUB - Sewa & Beli Game Konsol, Aksesoris, dan Tools Reparasi</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    h1, h2, h3, h4, .brand-font {
+      font-family: 'Outfit', sans-serif;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #invoice-modal, #invoice-modal * {
+        visibility: visible;
+      }
+      #invoice-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Announcement Bar -->
+  <header class="bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 border-b border-indigo-900/40 text-xs py-2 px-4">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 bg-amber-400 text-slate-950 font-bold rounded-full text-[10px] uppercase tracking-wider">Promo Baru</span>
+        <span class="text-gray-300">Gunakan kupon <strong class="text-amber-400">GAMERBARU</strong> untuk potongan Rp 50.000 transaksi pertama!</span>
+      </div>
+      <div class="flex items-center gap-4 text-gray-400">
+        <span class="flex items-center gap-1">⚡ Cloudflare Serverless Edge</span>
+        <span>•</span>
+        <span class="text-emerald-400 font-medium">● Rental Station Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-3 flex-shrink-0 group">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-2xl shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition">
+          🎮
+        </div>
+        <div>
+          <span class="brand-font text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+            CONSOLE<span class="text-indigo-400">HUB</span>
+          </span>
+          <span class="text-[10px] text-gray-400 tracking-wider uppercase block font-semibold">Rent • Retail • Tools</span>
+        </div>
+      </a>
+
+      <!-- Search Input Bar (Desktop) -->
+      <div class="hidden md:flex flex-1 max-w-md mx-6">
+        <div class="relative w-full">
+          <input type="text" id="search-input" placeholder="Cari konsol PS5, toolkit iFixit, kaset game, solder..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-2.5 pl-10 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition shadow-inner">
+          <span class="absolute left-3.5 top-3 text-gray-400 text-sm">🔍</span>
+        </div>
+      </div>
+
+      <!-- Mode Quick Switcher & Cart Button -->
+      <div class="flex items-center gap-3">
+        <!-- Quick Mode Switcher -->
+        <div class="hidden lg:flex items-center p-1 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold">
+          <button data-mode="all" class="mode-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 text-white border-indigo-500 transition">
+            Semua
+          </button>
+          <button data-mode="rent" class="mode-filter-btn px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+            Sewa Saja
+          </button>
+          <button data-mode="buy" class="mode-filter-btn px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+            Beli Saja
+          </button>
+        </div>
+
+        <!-- Tombol Keranjang -->
+        <button onclick="openCartDrawer()" class="relative p-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl border border-slate-700/80 shadow-md transition flex items-center gap-2 group">
+          <span class="text-lg">🛒</span>
+          <span class="hidden sm:inline text-xs font-bold">Keranjang</span>
+          <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-indigo-500 text-white text-[11px] font-extrabold w-5 h-5 rounded-full items-center justify-center shadow-lg animate-bounce">
+            0
+          </span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Search (Sub-bar) -->
+    <div class="md:hidden px-4 pb-3">
+      <div class="relative w-full">
+        <input type="text" oninput="document.getElementById('search-input').value = this.value; state.searchQuery = this.value; renderProducts();" placeholder="Cari konsol, tools, kaset game..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 pl-9 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
+        <span class="absolute left-3 top-2.5 text-gray-500 text-xs">🔍</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section & Promo Banner Slider -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4">
+    <div class="relative">
+      <div id="banner-slider" class="w-full overflow-hidden rounded-2xl">
+        <!-- Injected via app.js -->
+      </div>
+      <div id="banner-dots" class="flex justify-center gap-2 mt-3">
+        <!-- Injected via app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Fitur Highlight Bar -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl flex items-center gap-3">
+        <span class="text-2xl p-2 bg-indigo-950/80 text-indigo-400 rounded-xl border border-indigo-800/40">🗓️</span>
+        <div>
+          <h4 class="text-xs font-bold text-white">Sewa Fleksibel</h4>
+          <p class="text-[11px] text-gray-400">Harian, mingguan, hingga bulanan</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl flex items-center gap-3">
+        <span class="text-2xl p-2 bg-teal-950/80 text-teal-400 rounded-xl border border-teal-800/40">📦</span>
+        <div>
+          <h4 class="text-xs font-bold text-white">Stok Realtime</h4>
+          <p class="text-[11px] text-gray-400">Info ketersediaan unit transparan</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl flex items-center gap-3">
+        <span class="text-2xl p-2 bg-purple-950/80 text-purple-400 rounded-xl border border-purple-800/40">💳</span>
+        <div>
+          <h4 class="text-xs font-bold text-white">Payment Gateway</h4>
+          <p class="text-[11px] text-gray-400">QRIS, VA Bank & E-Wallet instan</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl flex items-center gap-3">
+        <span class="text-2xl p-2 bg-amber-950/80 text-amber-400 rounded-xl border border-amber-800/40">🛠️</span>
+        <div>
+          <h4 class="text-xs font-bold text-white">Tools & Sparepart</h4>
+          <p class="text-[11px] text-gray-400">Perlengkapan servis & modding pro</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Sort Toolbar -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-4">
+      
+      <!-- Baris 1: Kategori Tabs -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button data-category="all" class="category-btn px-4 py-2 rounded-xl text-xs md:text-sm font-bold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border border-indigo-500 transition whitespace-nowrap">
+          Semua Produk
+        </button>
+        <button data-category="console" class="category-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold bg-slate-900 text-gray-400 hover:text-white border border-slate-800 transition whitespace-nowrap">
+          🎮 Konsol Game
+        </button>
+        <button data-category="tools" class="category-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold bg-slate-900 text-gray-400 hover:text-white border border-slate-800 transition whitespace-nowrap">
+          🛠️ Tools & Reparasi
+        </button>
+        <button data-category="accessory" class="category-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold bg-slate-900 text-gray-400 hover:text-white border border-slate-800 transition whitespace-nowrap">
+          🎧 Aksesoris & VR
+        </button>
+        <button data-category="game" class="category-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold bg-slate-900 text-gray-400 hover:text-white border border-slate-800 transition whitespace-nowrap">
+          📀 Game Fisik
+        </button>
+      </div>
+
+      <!-- Baris 2: Controls (Stok Ready Only & Sorting) -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-800/80 text-xs">
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 text-gray-300 cursor-pointer select-none">
+            <input type="checkbox" id="stock-only-checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-indigo-600 focus:ring-0">
+            <span>Hanya Tampilkan Ready Stock</span>
+          </label>
+          <span id="product-count-label" class="text-gray-500 font-medium hidden sm:inline">
+            Menghitung data...
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-gray-400 font-medium">Urutkan:</span>
+          <select id="sort-select" class="bg-slate-950 border border-slate-700 text-gray-200 rounded-xl px-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none">
+            <option value="popular">Terpopuler & Rating Tertinggi</option>
+            <option value="discount">Promo & Diskon Terbesar</option>
+            <option value="price-low">Harga Termurah</option>
+            <option value="price-high">Harga Tertinggi</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Grid Produk -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Injected dynamically via app.js -->
+    </div>
+  </main>
+
+  <!-- ================= MODAL DETAIL PRODUK ================= -->
+  <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-8">
+      <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition border border-slate-700">
+        ✕
+      </button>
+      <div id="modal-product-content">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= KERANJANG BELANJA (CART DRAWER) ================= -->
+  <div id="cart-drawer" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden justify-end">
+    <div class="w-full max-w-md bg-slate-950 h-full border-l border-slate-800 flex flex-col justify-between shadow-2xl p-6 overflow-y-auto">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🛒</span>
+            <h3 class="font-black text-lg text-white">Keranjang Belanja</h3>
+          </div>
+          <button onclick="closeCartDrawer()" class="text-gray-400 hover:text-white p-1">✕</button>
+        </div>
+
+        <!-- List Item -->
+        <div id="cart-items-container" class="space-y-3 max-h-[48vh] overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Footer Cart (Kupon & Checkout) -->
+      <div id="cart-summary-container" class="pt-4 space-y-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CHECKOUT & PAYMENT GATEWAY MODAL ================= -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-8">
+      <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition border border-slate-700">
+        ✕
+      </button>
+
+      <!-- Step 1: Form Identitas & Alamat Pelanggan -->
+      <div id="checkout-step-customer" class="p-6 md:p-8 space-y-6">
+        <div class="border-b border-slate-800 pb-4">
+          <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Langkah 1 dari 2</span>
+          <h3 class="text-xl md:text-2xl font-black text-white mt-1">Informasi Pemesanan</h3>
+          <p class="text-xs text-gray-400">Lengkapi identitas untuk pengiriman dan verifikasi jaminan sewa konsol.</p>
+        </div>
+
+        <form onsubmit="proceedToPaymentGateway(event)" class="space-y-4 text-xs">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-300 font-semibold mb-1">Nama Lengkap *</label>
+              <input type="text" id="customer-name" required placeholder="Contoh: Budi Pratama" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-300 font-semibold mb-1">Nomor WhatsApp Aktif *</label>
+              <input type="tel" id="customer-phone" required placeholder="08123456789" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-semibold mb-1">Alamat Email *</label>
+            <input type="email" id="customer-email" required placeholder="budi@example.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+
+          <!-- Input Khusus Sewa: Nomor Identitas KTP -->
+          <div id="ktp-field-group" class="bg-indigo-950/40 p-4 rounded-xl border border-indigo-800/50 space-y-2">
+            <div class="flex items-center gap-2 text-indigo-300 font-bold">
+              <span>🆔 Verifikasi Jaminan Sewa</span>
+            </div>
+            <label class="block text-gray-300">Nomor Induk Kependudukan (e-KTP / SIM) *</label>
+            <input type="text" id="customer-id-number" placeholder="16 digit nomor e-KTP / SIM" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:border-indigo-500 focus:outline-none">
+            <p class="text-[11px] text-gray-400">Data Anda terlindungi enkripsi 256-bit dan hanya dipakai untuk identifikasi sewa unit konsol/tools.</p>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-semibold mb-1">Alamat Lengkap Pengiriman / Catatan Pengambilan *</label>
+            <textarea id="customer-address" rows="3" required placeholder="Tuliskan alamat lengkap atau pilih opsi 'Ambil Sendiri di Station Console Hub'" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:border-indigo-500 focus:outline-none"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-sm mt-4">
+            <span>Lanjut ke Pembayaran Online ➔</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Step 2: Payment Gateway Interface (Midtrans / QRIS / VA Simulation) -->
+      <div id="checkout-step-gateway" class="p-6 md:p-8 space-y-6 hidden">
+        <!-- Gateway Header -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded">PAYMENT GATEWAY</span>
+              <span class="text-[11px] text-gray-400">256-Bit SSL Enkripsi</span>
+            </div>
+            <h3 class="text-xl font-black text-white mt-1">Selesaikan Pembayaran</h3>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-gray-400 block">Sisa Waktu:</span>
+            <span id="gateway-timer" class="font-mono text-sm font-bold text-amber-400">14:59</span>
+          </div>
+        </div>
+
+        <!-- Total Tagihan Box -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
+          <div>
+            <span class="text-xs text-gray-400 block">No. Transaksi: <strong id="gateway-order-id" class="font-mono text-gray-200">-</strong></span>
+            <span class="text-[11px] text-indigo-400">Total Yang Harus Dibayar:</span>
+          </div>
+          <span id="gateway-amount" class="text-2xl font-black text-white">Rp 0</span>
+        </div>
+
+        <!-- Metode Pembayaran: QRIS & Virtual Account -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Kolom QRIS -->
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-center space-y-3 flex flex-col items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-indigo-400 block">Metode 1: QRIS Realtime</span>
+              <span class="text-[11px] text-gray-400">Bisa di-scan via GoPay, OVO, Dana, ShopeePay, BCA, Livin</span>
+            </div>
+            
+            <div class="p-3 bg-white rounded-2xl shadow-lg inline-block">
+              <img id="gateway-qris-image" src="" alt="QRIS Code" class="w-44 h-44 object-contain">
+            </div>
+
+            <span class="text-[10px] text-gray-500 block">Scan kode QR di atas dengan aplikasi e-wallet Anda</span>
+          </div>
+
+          <!-- Kolom Virtual Account -->
+          <div class="space-y-3">
+            <span class="text-xs font-bold text-indigo-400 block">Metode 2: Virtual Account Bank</span>
+            <div id="gateway-va-list" class="space-y-2.5">
+              <!-- Injected by app.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Aksi Simulasi Callback -->
+        <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row gap-3">
+          <button onclick="closeCheckoutModal()" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold transition">
+            Kembali
+          </button>
+          <button onclick="simulatePaymentSuccess()" class="flex-1 py-3 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+            <span>⚡ Simulasikan Pembayaran Berhasil (Test Settle)</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= INVOICE & BUKTI PEMBAYARAN RESMI ================= -->
+  <div id="invoice-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 my-8 space-y-6">
+      <div id="invoice-content">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row justify-end gap-3 no-print">
+        <button onclick="printInvoice()" class="py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-2">
+          <span>🖨️ Cetak / Download Invoice</span>
+        </button>
+        <button onclick="closeInvoiceModal()" class="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition">
+          Selesai & Belanja Lagi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-900 mt-16 py-12 text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🎮</span>
+          <span class="brand-font text-xl font-black text-white">CONSOLE<span class="text-indigo-400">HUB</span></span>
+        </div>
+        <p class="leading-relaxed">Platform e-commerce hybrid terdepan di Indonesia untuk rental game konsol, pembelian suku cadang asli, perlengkapan modding, dan game fisik original.</p>
+        <div class="flex items-center gap-2 text-indigo-400">
+          <span>🌐 Siap Deploy ke Cloudflare Pages</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="text-white font-bold uppercase tracking-wider text-sm mb-3">Layanan Kami</h4>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Rental PlayStation 5 & PS4</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Rental Nintendo Switch & Deck</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Tools Reparasi & Servis APU</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Suku Cadang Stick Anti-Drift</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Tukar Tambah & Beli Baru</p>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="text-white font-bold uppercase tracking-wider text-sm mb-3">Keamanan & Pembayaran</h4>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Midtrans Payment Gateway</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">QRIS Nasional Realtime</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Virtual Account Otomatis</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Garansi Pengembalian Deposit</p>
+        <p class="hover:text-indigo-300 transition cursor-pointer">Verifikasi KTP Terenkripsi</p>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="text-white font-bold uppercase tracking-wider text-sm mb-3">Rental Station & Hub</h4>
+        <p class="text-gray-300">Hub Jakarta Selatan:</p>
+        <p>Jl. Arteri Pondok Indah No. 88, Jakarta Selatan</p>
+        <p class="text-gray-300 mt-2">Kontak Customer Service:</p>
+        <p class="text-indigo-400 font-mono font-semibold">+62 812-3456-7890 (WhatsApp 24 Jam)</p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-500">
+      <p>© 2026 CONSOLE HUB. All rights reserved.</p>
+      <p>Target Deployment: Cloudflare Pages & Workers API</p>
+    </div>
+  </footer>
+
+  <!-- Scripts: Data & Application Logic -->
+  <script src="data/products.js"></script>
+  <script src="data/promotions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
