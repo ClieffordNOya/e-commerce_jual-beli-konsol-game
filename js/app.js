@@ -18,17 +18,19 @@ const state = {
   activeModeFilter: "all", // 'all' | 'rent' | 'buy'
   searchQuery: "",
   inStockOnly: false,
+  promoOnly: false,
   sortBy: "popular", // 'popular' | 'price-low' | 'price-high' | 'discount'
   activeBannerIndex: 0,
   cart: [],
   appliedCoupon: null,
   selectedProductForModal: null,
   activeModalMode: "rent", // 'rent' | 'buy'
-  modalRentDuration: 3, // hari default
+  modalRentDuration: 3,
   modalRentStartDate: new Date().toISOString().split("T")[0],
   modalQuantity: 1,
   currentTransaction: null
 };
+
 
 // Formatter Rupiah
 function formatRupiah(amount) {
@@ -77,6 +79,66 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   setupCountdownTimer();
 });
+
+// ===== FUNGSI MODE SEWA / BELI (Hero Mode Selector) =====
+window.setGlobalMode = function(mode) {
+  state.activeModeFilter = mode;
+
+  // Update visual state pada hero mode cards
+  const cardAll  = document.getElementById("mode-card-all");
+  const cardRent = document.getElementById("mode-card-rent");
+  const cardBuy  = document.getElementById("mode-card-buy");
+
+  // Reset semua kartu ke state tidak aktif
+  const inactiveClass = "mode-hero-card group relative overflow-hidden rounded-2xl p-6 border-2 border-slate-700 bg-slate-900/60 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl";
+  const activeAllClass = "mode-hero-card group relative overflow-hidden rounded-2xl p-6 border-2 border-indigo-500 bg-indigo-600/20 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/20 ring-2 ring-indigo-500/50";
+  const activeRentClass = "mode-hero-card group relative overflow-hidden rounded-2xl p-6 border-2 border-indigo-500 bg-indigo-600/10 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/20 ring-2 ring-indigo-500/40";
+  const activeBuyClass  = "mode-hero-card group relative overflow-hidden rounded-2xl p-6 border-2 border-teal-500 bg-teal-600/10 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-teal-500/20 ring-2 ring-teal-500/40";
+
+  if (cardAll)  cardAll.className  = inactiveClass + " hover:border-indigo-500/60 hover:shadow-indigo-500/10";
+  if (cardRent) cardRent.className = inactiveClass + " hover:border-indigo-500/60 hover:shadow-indigo-500/10";
+  if (cardBuy)  cardBuy.className  = inactiveClass + " hover:border-teal-500/60 hover:shadow-teal-500/10";
+
+  // Hapus badge AKTIF lama
+  document.querySelectorAll(".mode-active-badge").forEach(b => b.remove());
+
+  // Set kartu yang dipilih menjadi aktif
+  const badgeHtml = (color) => `<span class="mode-active-badge absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-${color}-500 text-white shadow">AKTIF</span>`;
+  if (mode === "all" && cardAll) {
+    cardAll.className = activeAllClass;
+    cardAll.insertAdjacentHTML("beforeend", badgeHtml("indigo"));
+  } else if (mode === "rent" && cardRent) {
+    cardRent.className = activeRentClass;
+    cardRent.insertAdjacentHTML("beforeend", badgeHtml("indigo"));
+  } else if (mode === "buy" && cardBuy) {
+    cardBuy.className = activeBuyClass;
+    cardBuy.insertAdjacentHTML("beforeend", badgeHtml("teal"));
+  }
+
+  // Sync dengan tombol mode filter di navbar
+  const modeButtons = document.querySelectorAll(".mode-filter-btn");
+  modeButtons.forEach(btn => {
+    if (btn.dataset.mode === mode) {
+      btn.classList.add("bg-slate-800", "text-white", "border-indigo-500");
+      btn.classList.remove("text-gray-400");
+    } else {
+      btn.classList.remove("bg-slate-800", "text-white", "border-indigo-500");
+      btn.classList.add("text-gray-400");
+    }
+  });
+
+  // Scroll ke katalog produk
+  const catalogSection = document.getElementById("products-grid");
+  if (catalogSection) {
+    catalogSection.closest("main").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Re-render produk dengan filter baru
+  renderProducts();
+
+  const modeLabel = mode === "all" ? "Semua Produk" : mode === "rent" ? "Mode Sewa" : "Mode Beli";
+  showToast(`Filter diubah ke: ${modeLabel}`, "info");
+};
 
 // Setup Hero Promo Banners
 function initBanners() {
@@ -172,7 +234,10 @@ function getFilteredProducts() {
     // 3. Stok Ready Only
     if (state.inStockOnly && p.stockReady <= 0) return false;
 
-    // 4. Pencarian teks
+    // 4. Promo Only
+    if (state.promoOnly && !(p.promo && p.promo.hasPromo)) return false;
+
+    // 5. Pencarian teks
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
       const matchName = p.name.toLowerCase().includes(q);
@@ -211,7 +276,8 @@ function renderProducts() {
   const filtered = getFilteredProducts();
 
   if (countLabel) {
-    countLabel.innerText = `Menampilkan ${filtered.length} dari ${state.products.length} produk`;
+    const modeText = state.activeModeFilter === "rent" ? " · Mode Sewa" : state.activeModeFilter === "buy" ? " · Mode Beli" : "";
+    countLabel.innerHTML = `<span class="font-semibold text-white">${filtered.length}</span> <span class="text-gray-400">dari ${state.products.length} produk${modeText}</span>`;
   }
 
   if (filtered.length === 0) {
@@ -302,42 +368,65 @@ function renderProducts() {
           </div>
         </div>
 
-        <!-- Section Harga & Tombol Aksi -->
+        <!-- Section Harga & Tombol Aksi: SEWA vs BELI -->
         <div class="p-4 pt-0 space-y-3 border-t border-slate-800/80 mt-2">
+
+          <!-- Info Harga (Sewa & Beli berdampingan) -->
           <div class="pt-3 grid grid-cols-2 gap-2 text-xs">
             ${p.isRentable ? `
-              <div class="bg-indigo-950/40 p-2 rounded-xl border border-indigo-900/40">
-                <span class="text-gray-400 block text-[10px]">Tarif Sewa:</span>
-                <span class="text-indigo-300 font-bold text-sm block">${formatRupiah(p.rentPricePerDay)}</span>
-                <span class="text-[10px] text-gray-400">/hari</span>
+              <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 flex flex-col justify-between">
+                <span class="text-[10px] font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-1">🗓️ Tarif Sewa</span>
+                <div>
+                  <span class="text-indigo-300 font-black text-base block">${formatRupiah(p.rentPricePerDay)}</span>
+                  <span class="text-[10px] text-gray-400">/hari · Min. deposit ${formatRupiah(p.securityDeposit)}</span>
+                </div>
               </div>
             ` : `
-              <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/30 flex items-center justify-center text-[10px] text-gray-500">
-                Hanya Dijual
+              <div class="bg-slate-800/20 p-2.5 rounded-xl border border-slate-700/20 flex items-center justify-center text-center">
+                <span class="text-[11px] text-gray-500 font-medium">Tidak<br>Tersewa</span>
               </div>
             `}
 
             ${p.isBuyable ? `
-              <div class="bg-teal-950/40 p-2 rounded-xl border border-teal-900/40">
-                <span class="text-gray-400 block text-[10px]">Harga Beli:</span>
-                <span class="text-teal-300 font-bold text-sm block">${formatRupiah(p.buyPrice)}</span>
-                <span class="text-[10px] text-gray-400">unit baru</span>
+              <div class="bg-teal-950/40 p-2.5 rounded-xl border border-teal-900/40 flex flex-col justify-between">
+                <span class="text-[10px] font-semibold text-teal-400 uppercase tracking-wider flex items-center gap-1">🛍️ Harga Beli</span>
+                <div>
+                  <span class="text-teal-300 font-black text-base block">${formatRupiah(p.buyPrice)}</span>
+                  <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
+                </div>
               </div>
             ` : `
-              <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/30 flex items-center justify-center text-[10px] text-gray-500">
-                Hanya Sewa
+              <div class="bg-slate-800/20 p-2.5 rounded-xl border border-slate-700/20 flex items-center justify-center text-center">
+                <span class="text-[11px] text-gray-500 font-medium">Tidak<br>Dijual</span>
               </div>
             `}
           </div>
 
-          <div class="flex gap-2">
-            <button onclick="openProductDetail('${p.id}', 'quick')" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-gray-200 text-xs font-semibold rounded-xl border border-slate-700 hover:border-slate-600 transition flex items-center justify-center gap-1">
-              <span>Detail & Opsi</span>
-            </button>
-            <button onclick="openProductDetail('${p.id}', '${p.isRentable ? 'rent' : 'buy'}')" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition flex items-center justify-center gap-1">
-              <span>${p.isRentable ? 'Pilih Sewa' : 'Beli Unit'}</span>
-            </button>
+          <!-- Tombol Aksi SEWA dan BELI yang menonjol -->
+          <div class="grid ${(p.isRentable && p.isBuyable) ? 'grid-cols-2' : 'grid-cols-1'} gap-2">
+            ${p.isRentable ? `
+              <button onclick="openProductDetail('${p.id}', 'rent')"
+                class="group/btn py-2.5 px-3 rounded-xl font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all duration-200
+                  bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 hover:shadow-indigo-500/40 hover:scale-[1.02] border border-indigo-500">
+                <span class="text-sm">🗓️ SEWA</span>
+                <span class="text-[10px] font-normal opacity-80">${formatRupiah(p.rentPricePerDay)}/hari</span>
+              </button>
+            ` : ''}
+            ${p.isBuyable ? `
+              <button onclick="openProductDetail('${p.id}', 'buy')"
+                class="group/btn py-2.5 px-3 rounded-xl font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all duration-200
+                  bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-600/25 hover:shadow-teal-500/40 hover:scale-[1.02] border border-teal-500">
+                <span class="text-sm">🛍️ BELI</span>
+                <span class="text-[10px] font-normal opacity-80">${formatRupiah(p.buyPrice)}</span>
+              </button>
+            ` : ''}
           </div>
+
+          <!-- Tombol Detail kecil -->
+          <button onclick="openProductDetail('${p.id}', 'quick')"
+            class="w-full py-2 text-center text-[11px] text-gray-400 hover:text-indigo-300 transition font-medium flex items-center justify-center gap-1">
+            <span>Lihat Detail & Spesifikasi ›</span>
+          </button>
         </div>
       </div>
     `;
