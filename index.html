@@ -91,6 +91,8 @@
       </button>
     </div>
 
+
+
     <!-- Mobile Search Sub-bar -->
     <div class="md:hidden px-4 pb-2.5">
       <div class="flex gap-2">
@@ -482,6 +484,173 @@
     </div>
   </div>
 
+  <!-- ================= MODAL ADMIN DASHBOARD ================= -->
+  <div id="admin-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="relative w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-4 max-h-[90vh] flex flex-col">
+      
+      <!-- Close button -->
+      <button onclick="closeAdminModal()" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition border border-slate-700">
+        ✕
+      </button>
+
+      <!-- Sub-view 1: Password Gate (Jika Belum Login) -->
+      <div id="modal-admin-gate" class="p-8 sm:p-12 flex flex-col items-center justify-center text-center space-y-4 my-auto">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-3xl shadow-inner">
+          🔒
+        </div>
+        <div>
+          <h3 class="brand-font text-2xl font-black text-white">Admin Dashboard Login</h3>
+          <p class="text-xs text-gray-400 mt-1">Masukkan kata sandi administrator untuk mengelola stok, diskon, dan pesanan.</p>
+        </div>
+
+        <form onsubmit="handleModalAdminLogin(event)" class="w-full max-w-xs space-y-3 pt-2">
+          <input type="password" id="modal-admin-pass" placeholder="Password (default: admin123)" required
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-center text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
+          <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg transition">
+            Buka Panel Admin
+          </button>
+          <p class="text-[10px] text-gray-500">Default password: <code class="text-indigo-400 font-mono">admin123</code></p>
+        </form>
+      </div>
+
+      <!-- Sub-view 2: Admin Dashboard Panel (Jika Sudah Login) -->
+      <div id="modal-admin-panel" class="hidden flex-col flex-1 overflow-hidden">
+        
+        <!-- Header Panel Modal -->
+        <div class="p-5 border-b border-slate-800 bg-slate-950/60 flex flex-wrap items-center justify-between gap-3 flex-shrink-0 pr-14">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🛡️</span>
+            <div>
+              <h3 class="brand-font text-lg font-black text-white">Admin Dashboard Console Hub</h3>
+              <p class="text-[11px] text-gray-400">Pengaturan Stok, On-Sale Diskon, & Riwayat Pesanan</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="admin.html" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-xl text-xs font-semibold border border-slate-700 transition">
+              Buka Tab Baru ↗
+            </a>
+            <button onclick="handleModalAdminLogout()" class="px-3 py-1.5 bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 rounded-xl text-xs font-semibold border border-rose-800/40 transition">
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Body Scrollable -->
+        <div class="p-5 space-y-5 overflow-y-auto flex-1">
+          
+          <!-- KPI Stats Mini -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] text-gray-400 block">Total Produk</span>
+              <span class="text-lg font-black text-white" id="modal-kpi-total">-</span>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] text-rose-400 block">Produk On-Sale</span>
+              <span class="text-lg font-black text-rose-400" id="modal-kpi-onsale">-</span>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] text-amber-400 block">Stok Kritis / Habis</span>
+              <span class="text-lg font-black text-amber-400" id="modal-kpi-lowstock">-</span>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] text-emerald-400 block">Total Omset</span>
+              <span class="text-base font-black text-emerald-400" id="modal-kpi-revenue">-</span>
+            </div>
+          </div>
+
+          <!-- Navigation Tabs -->
+          <div class="flex items-center gap-2 p-1 bg-slate-950 rounded-xl border border-slate-800 overflow-x-auto">
+            <button id="modal-tab-btn-stock" onclick="switchModalAdminTab('stock')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-indigo-600 text-white">
+              📦 Manajemen Stok
+            </button>
+            <button id="modal-tab-btn-discount" onclick="switchModalAdminTab('discount')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-gray-400 hover:text-white">
+              🏷️ Atur Diskon Produk
+            </button>
+            <button id="modal-tab-btn-orders" onclick="switchModalAdminTab('orders')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-gray-400 hover:text-white">
+              📋 Daftar Pesanan
+            </button>
+          </div>
+
+          <!-- Tab Content 1: Stok -->
+          <div id="modal-tab-sec-stock" class="bg-slate-950/80 rounded-2xl border border-slate-800 overflow-hidden">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center text-xs">
+              <span class="text-gray-300 font-bold">Ubah Jumlah Unit Ready & Tersewa</span>
+              <span class="text-[11px] text-emerald-400">Perubahan langsung aktif di katalog toko</span>
+            </div>
+            <div class="overflow-x-auto max-h-80 overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 sticky top-0 text-[10px] uppercase text-gray-400 border-b border-slate-800">
+                  <tr>
+                    <th class="p-2.5">Produk</th>
+                    <th class="p-2.5 text-center">Ready Stock</th>
+                    <th class="p-2.5 text-center">Sedang Disewa</th>
+                    <th class="p-2.5 text-center">Status</th>
+                    <th class="p-2.5 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="modal-admin-stock-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tab Content 2: Diskon -->
+          <div id="modal-tab-sec-discount" class="hidden bg-slate-950/80 rounded-2xl border border-slate-800 overflow-hidden">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center text-xs">
+              <span class="text-gray-300 font-bold">Atur Status On Sale, Harga Normal & Harga Diskon</span>
+              <span class="text-[11px] text-rose-400">Aktifkan diskon untuk produk pilihan</span>
+            </div>
+            <div class="overflow-x-auto max-h-80 overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 sticky top-0 text-[10px] uppercase text-gray-400 border-b border-slate-800">
+                  <tr>
+                    <th class="p-2.5">Produk</th>
+                    <th class="p-2.5 text-center">On Sale</th>
+                    <th class="p-2.5">Harga Normal & Diskon</th>
+                    <th class="p-2.5 text-center">% Diskon</th>
+                    <th class="p-2.5 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="modal-admin-discount-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tab Content 3: Pesanan -->
+          <div id="modal-tab-sec-orders" class="hidden bg-slate-950/80 rounded-2xl border border-slate-800 overflow-hidden">
+            <div class="p-3 border-b border-slate-800 flex flex-wrap justify-between items-center gap-2 text-xs">
+              <span class="text-gray-300 font-bold">Daftar Transaksi Masuk & Status Pengiriman / Sewa</span>
+              <div class="flex items-center gap-1">
+                <button onclick="filterModalOrders('all')" class="modal-order-filter-btn px-2.5 py-1 rounded bg-indigo-600 text-white text-[11px]">Semua</button>
+                <button onclick="filterModalOrders('completed')" class="modal-order-filter-btn px-2.5 py-1 rounded bg-slate-900 text-gray-400 text-[11px]">Selesai</button>
+                <button onclick="filterModalOrders('active')" class="modal-order-filter-btn px-2.5 py-1 rounded bg-slate-900 text-gray-400 text-[11px]">Aktif Sewa</button>
+                <button onclick="filterModalOrders('pending')" class="modal-order-filter-btn px-2.5 py-1 rounded bg-slate-900 text-gray-400 text-[11px]">Pending</button>
+              </div>
+            </div>
+            <div class="overflow-x-auto max-h-80 overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 sticky top-0 text-[10px] uppercase text-gray-400 border-b border-slate-800">
+                  <tr>
+                    <th class="p-2.5">No. Order</th>
+                    <th class="p-2.5">Pelanggan</th>
+                    <th class="p-2.5">Item Pesanan</th>
+                    <th class="p-2.5">Total Bayar</th>
+                    <th class="p-2.5 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="modal-admin-orders-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ─── FOOTER ─────────────────────────────────────────────── -->
   <footer class="bg-slate-950 border-t border-slate-900 mt-10 py-10 text-xs text-gray-400">
     <div class="max-w-screen-2xl mx-auto px-4 lg:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -491,7 +660,9 @@
           <span class="brand-font text-xl font-black text-white">CONSOLE<span class="text-indigo-400">HUB</span></span>
         </div>
         <p class="leading-relaxed">Platform e-commerce hybrid untuk rental & jual-beli game konsol, tools reparasi, aksesoris, dan game fisik original.</p>
-        <span class="text-indigo-400">🌐 Cloudflare Pages Ready</span>
+        <div class="flex items-center gap-3">
+          <span class="text-indigo-400">🌐 Cloudflare Pages Ready</span>
+        </div>
       </div>
       <div class="space-y-1.5">
         <h4 class="text-white font-bold uppercase tracking-wider text-sm mb-2">Layanan</h4>
@@ -519,15 +690,19 @@
       </div>
     </div>
     <div class="max-w-screen-2xl mx-auto px-4 lg:px-6 mt-8 pt-5 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-gray-500">
-      <p>© 2026 CONSOLE HUB. All rights reserved.</p>
+      <p id="secret-admin-trigger" class="cursor-default select-none transition" title="">© 2026 CONSOLE HUB. All rights reserved.</p>
       <p>Powered by Cloudflare Pages & Edge Functions</p>
     </div>
   </footer>
 
+
   <!-- Scripts -->
   <script src="data/products.js"></script>
   <script src="data/promotions.js"></script>
+  <script src="data/admin-data.js"></script>
+  <script src="js/admin.js"></script>
   <script src="js/app.js"></script>
+
 
   <!-- Patch: Tambahan JS untuk fitur sidebar & sort-top -->
   <script>
@@ -586,6 +761,263 @@
 
       renderProducts();
     };
+
+    // ===== FUNGSI KONTROL MODAL ADMIN DASHBOARD =====
+    window.openAdminModal = function() {
+      const modal = document.getElementById('admin-modal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+
+      if (window.checkAdminAuth && window.checkAdminAuth()) {
+        showModalAdminPanel();
+      } else {
+        document.getElementById('modal-admin-gate').classList.remove('hidden');
+        document.getElementById('modal-admin-panel').classList.add('hidden');
+        document.getElementById('modal-admin-panel').classList.remove('flex');
+      }
+    };
+
+    window.closeAdminModal = function() {
+      const modal = document.getElementById('admin-modal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    };
+
+    window.handleModalAdminLogin = function(e) {
+      e.preventDefault();
+      const pass = document.getElementById('modal-admin-pass').value;
+      if (window.loginAdmin && window.loginAdmin(pass)) {
+        showToast('Login Admin Berhasil!', 'success');
+        showModalAdminPanel();
+      } else {
+        showToast('Password salah! Coba admin123', 'warning');
+      }
+    };
+
+    window.handleModalAdminLogout = function() {
+      if (window.logoutAdmin) window.logoutAdmin();
+      document.getElementById('modal-admin-gate').classList.remove('hidden');
+      document.getElementById('modal-admin-panel').classList.add('hidden');
+      document.getElementById('modal-admin-panel').classList.remove('flex');
+      showToast('Admin berhasil logout.', 'info');
+    };
+
+    function showModalAdminPanel() {
+      document.getElementById('modal-admin-gate').classList.add('hidden');
+      const panel = document.getElementById('modal-admin-panel');
+      panel.classList.remove('hidden');
+      panel.classList.add('flex');
+      renderModalKPI();
+      switchModalAdminTab('stock');
+    }
+
+    function renderModalKPI() {
+      const prods = (window.adminState && window.adminState.products) || window.CONSOLE_PRODUCTS || [];
+      const orders = (window.adminState && window.adminState.orders) || window.ADMIN_ORDERS || [];
+      const onSale = prods.filter(p => p.isOnSale).length;
+      const lowStock = prods.filter(p => (p.stockReady || 0) <= 3).length;
+      const revenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+      const el = (id, val) => { const e = document.getElementById(id); if (e) e.innerHTML = val; };
+      el('modal-kpi-total', prods.length);
+      el('modal-kpi-onsale', `${onSale} <span class="text-xs text-rose-400 font-normal">Item</span>`);
+      el('modal-kpi-lowstock', `${lowStock} <span class="text-xs text-amber-400 font-normal">Perlu Restock</span>`);
+      el('modal-kpi-revenue', new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(revenue));
+    }
+
+    window.switchModalAdminTab = function(tabName) {
+      const tabs = ['stock', 'discount', 'orders'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`modal-tab-btn-${t}`);
+        const sec = document.getElementById(`modal-tab-sec-${t}`);
+        if (btn) {
+          if (t === tabName) {
+            btn.classList.add('bg-indigo-600', 'text-white');
+            btn.classList.remove('text-gray-400');
+          } else {
+            btn.classList.remove('bg-indigo-600', 'text-white');
+            btn.classList.add('text-gray-400');
+          }
+        }
+        if (sec) {
+          if (t === tabName) sec.classList.remove('hidden');
+          else sec.classList.add('hidden');
+        }
+      });
+
+      if (tabName === 'stock') renderModalAdminStock();
+      else if (tabName === 'discount') renderModalAdminDiscount();
+      else if (tabName === 'orders') renderModalAdminOrders();
+    };
+
+    function renderModalAdminStock() {
+      const tbody = document.getElementById('modal-admin-stock-tbody');
+      if (!tbody) return;
+      const prods = (window.adminState && window.adminState.products) || window.CONSOLE_PRODUCTS || [];
+
+      tbody.innerHTML = prods.map(p => {
+        let statusBadge = p.stockReady === 0
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">Habis</span>`
+          : (p.stockReady <= 3
+            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400">Menipis (${p.stockReady})</span>`
+            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Tersedia (${p.stockReady})</span>`);
+
+        return `
+          <tr class="border-b border-slate-800/60 hover:bg-slate-900/50">
+            <td class="p-2.5">
+              <div class="font-bold text-gray-200 line-clamp-1">${p.name}</div>
+              <div class="text-[10px] text-gray-500">${p.categoryLabel}</div>
+            </td>
+            <td class="p-2.5 text-center">
+              <div class="inline-flex items-center gap-1 bg-slate-900 p-0.5 rounded border border-slate-800">
+                <button onclick="changeProductStock('${p.id}', 'ready', -1); renderModalAdminStock(); renderModalKPI();" class="w-5 h-5 bg-slate-800 text-white rounded font-bold">-</button>
+                <span class="w-8 text-center font-bold text-emerald-400 text-xs">${p.stockReady}</span>
+                <button onclick="changeProductStock('${p.id}', 'ready', 1); renderModalAdminStock(); renderModalKPI();" class="w-5 h-5 bg-slate-800 text-white rounded font-bold">+</button>
+              </div>
+            </td>
+            <td class="p-2.5 text-center">
+              <div class="inline-flex items-center gap-1 bg-slate-900 p-0.5 rounded border border-slate-800">
+                <button onclick="changeProductStock('${p.id}', 'rented', -1); renderModalAdminStock(); renderModalKPI();" class="w-5 h-5 bg-slate-800 text-white rounded font-bold">-</button>
+                <span class="w-8 text-center font-bold text-sky-400 text-xs">${p.stockRented || 0}</span>
+                <button onclick="changeProductStock('${p.id}', 'rented', 1); renderModalAdminStock(); renderModalKPI();" class="w-5 h-5 bg-slate-800 text-white rounded font-bold">+</button>
+              </div>
+            </td>
+            <td class="p-2.5 text-center">${statusBadge}</td>
+            <td class="p-2.5 text-right">
+              <button onclick="saveSingleStock('${p.id}'); renderModalAdminStock(); renderModalKPI();" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded text-[10px] transition">
+                Simpan
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderModalAdminDiscount() {
+      const tbody = document.getElementById('modal-admin-discount-tbody');
+      if (!tbody) return;
+      const prods = (window.adminState && window.adminState.products) || window.CONSOLE_PRODUCTS || [];
+
+      tbody.innerHTML = prods.map(p => {
+        const isSale = !!p.isOnSale;
+        const origPrice = p.originalPrice || p.buyPrice || 0;
+        const discPrice = p.discountPrice || p.buyPrice || 0;
+        const percent = origPrice > 0 && origPrice > discPrice ? Math.round(((origPrice - discPrice) / origPrice) * 100) : 0;
+
+        return `
+          <tr class="border-b border-slate-800/60 hover:bg-slate-900/50">
+            <td class="p-2.5">
+              <div class="font-bold text-gray-200 line-clamp-1">${p.name}</div>
+              <div class="text-[10px] text-amber-400 font-bold">★ ${p.rating} (${p.reviews ? p.reviews.length : p.reviewsCount})</div>
+            </td>
+            <td class="p-2.5 text-center">
+              <input type="checkbox" ${isSale ? 'checked' : ''} onchange="toggleProductSale('${p.id}', this.checked); renderModalAdminDiscount(); renderModalKPI();" class="w-4 h-4 rounded accent-rose-600 cursor-pointer">
+            </td>
+            <td class="p-2.5">
+              <div class="text-[11px] space-y-0.5">
+                <div>Normal: <input type="number" value="${origPrice}" onchange="updateProductPricing('${p.id}', 'originalPrice', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-white text-[10px]"></div>
+                <div>Diskon: <input type="number" value="${discPrice}" onchange="updateProductPricing('${p.id}', 'discountPrice', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-rose-300 font-bold text-[10px]"></div>
+              </div>
+            </td>
+            <td class="p-2.5 text-center">
+              ${isSale && percent > 0 ? `<span class="px-2 py-0.5 bg-rose-600/30 text-rose-300 rounded font-black text-[10px]">-${percent}%</span>` : `<span class="text-gray-500">-</span>`}
+            </td>
+            <td class="p-2.5 text-right">
+              <button onclick="saveSingleDiscount('${p.id}'); renderModalAdminDiscount(); renderModalKPI();" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-[10px] transition">
+                Simpan
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    let modalOrderFilterStatus = 'all';
+    window.filterModalOrders = function(status) {
+      modalOrderFilterStatus = status;
+      document.querySelectorAll('.modal-order-filter-btn').forEach(b => {
+        if (b.innerText.toLowerCase().includes(status === 'all' ? 'semua' : status)) {
+          b.className = 'modal-order-filter-btn px-2.5 py-1 rounded bg-indigo-600 text-white text-[11px]';
+        } else {
+          b.className = 'modal-order-filter-btn px-2.5 py-1 rounded bg-slate-900 text-gray-400 text-[11px]';
+        }
+      });
+      renderModalAdminOrders();
+    };
+
+    function renderModalAdminOrders() {
+      const tbody = document.getElementById('modal-admin-orders-tbody');
+      if (!tbody) return;
+      let orders = (window.adminState && window.adminState.orders) || window.ADMIN_ORDERS || [];
+      if (modalOrderFilterStatus !== 'all') {
+        orders = orders.filter(o => o.status === modalOrderFilterStatus);
+      }
+
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">Tidak ada pesanan dengan status ini.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(ord => {
+        let statusBadge = ord.status === 'completed'
+          ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Selesai</span>`
+          : (ord.status === 'active'
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400">Aktif Sewa</span>`
+            : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400">Pending</span>`);
+
+        const itemsStr = (ord.items || []).map(it => `${it.productName || it.name} (${it.qty || 1}x)`).join(', ');
+
+        return `
+          <tr class="border-b border-slate-800/60 hover:bg-slate-900/50">
+            <td class="p-2.5 font-mono text-indigo-400 font-bold">${ord.id}</td>
+            <td class="p-2.5">
+              <div class="font-bold text-gray-200">${ord.customer ? ord.customer.name : '-'}</div>
+              <div class="text-[10px] text-gray-500">${ord.customer ? ord.customer.phone : '-'}</div>
+            </td>
+            <td class="p-2.5 text-[11px] text-gray-300 max-w-xs truncate">${itemsStr}</td>
+            <td class="p-2.5 font-bold text-white">${formatRupiah(ord.total)}</td>
+            <td class="p-2.5 text-center">
+              <select onchange="updateOrderStatus('${ord.id}', this.value); renderModalAdminOrders();" class="bg-slate-900 border border-slate-700 text-[10px] rounded px-1.5 py-0.5 text-gray-200 focus:outline-none">
+                <option value="pending" ${ord.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="active" ${ord.status === 'active' ? 'selected' : ''}>Aktif Sewa</option>
+                <option value="completed" ${ord.status === 'completed' ? 'selected' : ''}>Selesai</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ===== SECRET ACCESS: SHORTCUT KEYBOARD & TRIPLE-CLICK =====
+    // 1. Shortcut: Tekan Ctrl + Shift + A di mana saja untuk membuka Admin
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        openAdminModal();
+      }
+    });
+
+    // 2. Secret: Klik 3x cepat pada teks copyright footer
+    let secretClickCount = 0;
+    let secretClickTimer = null;
+    const secretTrigger = document.getElementById('secret-admin-trigger');
+    if (secretTrigger) {
+      secretTrigger.addEventListener('click', () => {
+        secretClickCount++;
+        clearTimeout(secretClickTimer);
+        secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 1000);
+        if (secretClickCount >= 3) {
+          secretClickCount = 0;
+          openAdminModal();
+        }
+      });
+    }
   </script>
 </body>
+
 </html>
+

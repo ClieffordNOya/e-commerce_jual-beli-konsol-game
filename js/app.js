@@ -5,7 +5,18 @@
  */
 
 // Inisialisasi Data Produk dan Promosi (Mendukung file:// langsung dan HTTP)
-const productsData = window.CONSOLE_PRODUCTS || [];
+function getStoredProductsData() {
+  try {
+    const saved = localStorage.getItem("CONSOLE_PRODUCTS_OVERRIDE");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return window.CONSOLE_PRODUCTS || [];
+}
+
+const productsData = getStoredProductsData();
 const promoBannersData = window.CONSOLE_BANNERS || [];
 const couponsData = window.CONSOLE_COUPONS || [];
 
@@ -318,14 +329,28 @@ function renderProducts() {
       </span>`;
     }
 
-    // Badge Promosi
-    const promoBadge = p.promo && p.promo.hasPromo ? `
-      <div class="absolute top-3 left-3 z-10">
-        <span class="px-2.5 py-1 bg-rose-600 text-white text-[11px] font-extrabold uppercase tracking-wider rounded-lg shadow-md flex items-center gap-1">
-          ⚡ ${p.promo.badgeText}
-        </span>
-      </div>
-    ` : "";
+    // Badge Promosi & On Sale
+    let promoBadge = "";
+    if (p.isOnSale) {
+      const orig = p.originalPrice || p.buyPrice;
+      const curr = p.buyPrice || p.discountPrice;
+      const pct = orig > curr ? Math.round(((orig - curr) / orig) * 100) : 0;
+      promoBadge = `
+        <div class="absolute top-3 left-3 z-10">
+          <span class="px-2.5 py-1 bg-gradient-to-r from-rose-600 to-red-500 text-white text-[11px] font-black uppercase tracking-wider rounded-lg shadow-lg flex items-center gap-1 animate-pulse">
+            🔥 SALE ${pct > 0 ? `-${pct}%` : ''}
+          </span>
+        </div>
+      `;
+    } else if (p.promo && p.promo.hasPromo) {
+      promoBadge = `
+        <div class="absolute top-3 left-3 z-10">
+          <span class="px-2.5 py-1 bg-rose-600 text-white text-[11px] font-extrabold uppercase tracking-wider rounded-lg shadow-md flex items-center gap-1">
+            ⚡ ${p.promo.badgeText}
+          </span>
+        </div>
+      `;
+    }
 
     // Badge Mode Ketersediaan
     const availabilityBadge = `
@@ -349,7 +374,7 @@ function renderProducts() {
               <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">${p.categoryLabel}</span>
               <div class="flex items-center gap-1 text-xs text-amber-400 font-bold">
                 ★ <span>${p.rating}</span>
-                <span class="text-gray-500 font-normal">(${p.reviewsCount})</span>
+                <span class="text-gray-500 font-normal">(${p.reviews ? p.reviews.length : p.reviewsCount})</span>
               </div>
             </div>
 
@@ -389,8 +414,16 @@ function renderProducts() {
 
             ${p.isBuyable ? `
               <div class="bg-teal-950/40 p-2.5 rounded-xl border border-teal-900/40 flex flex-col justify-between">
-                <span class="text-[10px] font-semibold text-teal-400 uppercase tracking-wider flex items-center gap-1">🛍️ Harga Beli</span>
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-semibold text-teal-400 uppercase tracking-wider flex items-center gap-1">🛍️ Harga Beli</span>
+                  ${p.isOnSale && p.originalPrice && p.originalPrice > p.buyPrice ? `
+                    <span class="text-[9px] px-1.5 py-0.2 bg-rose-500/20 text-rose-300 font-bold rounded">DISKON</span>
+                  ` : ''}
+                </div>
                 <div>
+                  ${p.isOnSale && p.originalPrice && p.originalPrice > p.buyPrice ? `
+                    <span class="text-[10px] text-gray-500 line-through block leading-none mb-0.5">${formatRupiah(p.originalPrice)}</span>
+                  ` : ''}
                   <span class="text-teal-300 font-black text-base block">${formatRupiah(p.buyPrice)}</span>
                   <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
                 </div>
@@ -401,6 +434,7 @@ function renderProducts() {
               </div>
             `}
           </div>
+
 
           <!-- Tombol Aksi SEWA dan BELI yang menonjol -->
           <div class="grid ${(p.isRentable && p.isBuyable) ? 'grid-cols-2' : 'grid-cols-1'} gap-2">
@@ -561,7 +595,38 @@ function renderModalContent() {
             ${p.specs.map(s => `<li class="flex items-start gap-2"><span class="text-indigo-400">▹</span><span>${s}</span></li>`).join("")}
           </ul>
         </div>
+
+        <!-- Ulasan Pelanggan -->
+        <div class="space-y-2 pt-2 border-t border-slate-800/80">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⭐ Ulasan Pengguna</span>
+              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">★ ${p.rating} / 5.0</span>
+            </h4>
+            <span class="text-[10px] text-gray-400">${p.reviews ? p.reviews.length : p.reviewsCount} review</span>
+          </div>
+
+          <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            ${(p.reviews && p.reviews.length > 0) ? p.reviews.map(r => `
+              <div class="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-1 text-xs">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-indigo-600/30 text-indigo-300 text-[10px] font-bold flex items-center justify-center border border-indigo-500/40">${r.avatar || 'CS'}</span>
+                    <span class="font-bold text-gray-200 text-[11px]">${r.reviewer}</span>
+                    <span class="text-[9px] px-1.5 py-0.2 rounded font-semibold ${r.type === 'rent' ? 'bg-indigo-900/40 text-indigo-300 border border-indigo-700/40' : 'bg-teal-900/40 text-teal-300 border border-teal-700/40'}">${r.type === 'rent' ? 'Sewa' : 'Beli'}</span>
+                  </div>
+                  <span class="text-amber-400 text-[11px]">★ ${r.rating}</span>
+                </div>
+                <p class="text-[11px] text-gray-300 leading-relaxed pl-8">${r.comment}</p>
+                <div class="text-[9px] text-gray-500 text-right">${r.date}</div>
+              </div>
+            `).join("") : `
+              <p class="text-xs text-gray-500 italic p-3 text-center">Belum ada ulasan tertulis.</p>
+            `}
+          </div>
+        </div>
       </div>
+
 
       <!-- Kolom Kanan: Pilihan Mode, Kalkulator & Aksi -->
       <div class="lg:col-span-7 space-y-5 flex flex-col justify-between">
@@ -1193,8 +1258,13 @@ window.simulatePaymentSuccess = function() {
   tx.status = "paid";
   tx.paidAt = new Date().toLocaleString("id-ID");
 
-  // Kosongkan keranjang
+  // Simpan transaksi ke Admin Orders
   const purchasedItems = [...state.cart];
+  if (typeof window.addOrderFromCheckout === "function") {
+    window.addOrderFromCheckout(tx, purchasedItems);
+  }
+
+  // Kosongkan keranjang
   state.cart = [];
   state.appliedCoupon = null;
   updateCartBadge();
@@ -1203,6 +1273,7 @@ window.simulatePaymentSuccess = function() {
   openInvoiceModal(tx, purchasedItems);
   showToast("Pembayaran Berhasil Diverifikasi!", "success");
 };
+
 
 // Modal Invoice / Bukti Pembayaran Resmi
 function openInvoiceModal(tx, items) {

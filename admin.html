@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — CONSOLE HUB</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1,h2,h3,h4,.brand-font { font-family: 'Outfit', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[80] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- ─── LOGIN SCREEN (JIKA BELUM LOGIN) ─────────────────────── -->
+  <div id="admin-login-screen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl relative">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-3xl mx-auto shadow-inner">
+          🔒
+        </div>
+        <h2 class="brand-font text-2xl font-black text-white">Admin Dashboard</h2>
+        <p class="text-xs text-gray-400">Portal khusus pengelola Console Hub (Stok, Diskon, & Pesanan)</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1.5">Kata Sandi Administrator:</label>
+          <div class="relative">
+            <input type="password" id="admin-pass-input" placeholder="Masukkan password (default: admin123)" required
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
+            <button type="button" onclick="togglePassVisibility()" class="absolute right-3 top-3 text-xs text-gray-400 hover:text-white">👁️</button>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1.5">Default PIN / Password: <code class="text-indigo-400 font-mono">admin123</code></p>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition text-sm flex items-center justify-center gap-2">
+          <span>Masuk ke Dashboard</span> ➔
+        </button>
+      </form>
+
+      <div class="pt-4 border-t border-slate-800/80 text-center">
+        <a href="index.html" class="text-xs text-gray-400 hover:text-indigo-300 transition">← Kembali ke Toko Depan</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ADMIN DASHBOARD PANEL (SETELAH LOGIN) ──────────────── -->
+  <div id="admin-main-panel" class="hidden flex-1 flex flex-col min-h-screen">
+    
+    <!-- Navbar Admin -->
+    <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2 group">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-lg">🎮</div>
+          <span class="brand-font text-lg font-black text-white">CONSOLE<span class="text-indigo-400">HUB</span></span>
+        </a>
+        <span class="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold uppercase tracking-wider">
+          Admin Portal
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-gray-300 text-xs font-semibold rounded-xl border border-slate-800 transition flex items-center gap-1.5">
+          <span>🏪</span> <span class="hidden sm:inline">Lihat Toko</span>
+        </a>
+        <button onclick="handleAdminLogout()" class="px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 text-xs font-semibold rounded-xl border border-rose-800/50 transition">
+          Keluar
+        </button>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 space-y-6 flex-1">
+      
+      <!-- KPI Stats Bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-xs text-gray-400 font-semibold block">Total Produk</span>
+          <span class="text-2xl font-black text-white mt-1 block" id="admin-kpi-total-prods">-</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-xs text-rose-400 font-semibold block">Produk Sedang Diskon</span>
+          <span class="text-2xl font-black text-rose-400 mt-1 block" id="admin-kpi-onsale">-</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-xs text-amber-400 font-semibold block">Stok Menipis / Habis</span>
+          <span class="text-2xl font-black text-amber-400 mt-1 block" id="admin-kpi-lowstock">-</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <span class="text-xs text-emerald-400 font-semibold block">Total Omset Pesanan</span>
+          <span class="text-xl md:text-2xl font-black text-emerald-400 mt-1 block" id="admin-kpi-revenue">-</span>
+        </div>
+      </div>
+
+      <!-- Tab Navigation & Search Bar -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <!-- Tab Buttons -->
+        <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <button id="admin-tab-btn-stock" onclick="setAdminTab('stock')"
+            class="px-4 py-2 rounded-xl text-xs font-bold border transition whitespace-nowrap bg-indigo-600 text-white border-indigo-500">
+            📦 Manajemen Stok
+          </button>
+          <button id="admin-tab-btn-discount" onclick="setAdminTab('discount')"
+            class="px-4 py-2 rounded-xl text-xs font-bold border transition whitespace-nowrap text-gray-400 border-transparent hover:text-white">
+            🏷️ Atur Diskon Produk
+          </button>
+          <button id="admin-tab-btn-orders" onclick="setAdminTab('orders')"
+            class="px-4 py-2 rounded-xl text-xs font-bold border transition whitespace-nowrap text-gray-400 border-transparent hover:text-white">
+            📋 Daftar Pesanan
+          </button>
+        </div>
+
+        <!-- Search input -->
+        <div class="w-full md:w-64">
+          <div class="relative">
+            <input type="text" id="admin-search-input" placeholder="Cari produk / ID..." oninput="handleAdminSearch(this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 pl-8 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
+            <span class="absolute left-2.5 top-2 text-gray-500 text-xs">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 1: MANAJEMEN STOK ───────────────────────── -->
+      <div id="admin-tab-sec-stock" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+          <div>
+            <h3 class="brand-font text-base font-black text-white">Kelola Stok Unit Konsol, Tools, & Aksesoris</h3>
+            <p class="text-xs text-gray-400">Atur unit ready di rak toko dan unit yang sedang tersewa.</p>
+          </div>
+          <span class="text-xs text-emerald-400 font-semibold bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/40">
+            ✓ Auto-Sync ke Toko
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-950/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <th class="py-3 px-3">Produk</th>
+                <th class="py-3 px-3 text-center">Stok Ready</th>
+                <th class="py-3 px-3 text-center">Sedang Disewa</th>
+                <th class="py-3 px-3 text-center">Status</th>
+                <th class="py-3 px-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-stock-tbody">
+              <!-- Rendered via js/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 2: PENGATURAN DISKON ────────────────────── -->
+      <div id="admin-tab-sec-discount" class="hidden bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+          <div>
+            <h3 class="brand-font text-base font-black text-white">Pengaturan Diskon & Harga Promo</h3>
+            <p class="text-xs text-gray-400">Aktifkan status 'On Sale', tetapkan harga coret normal dan harga diskon.</p>
+          </div>
+          <span class="text-xs text-rose-400 font-semibold bg-rose-950/60 px-2.5 py-1 rounded-lg border border-rose-800/40">
+            ⚡ Flash Sale Control
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-950/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <th class="py-3 px-3">Produk & Rating</th>
+                <th class="py-3 px-3 text-center">Status On Sale</th>
+                <th class="py-3 px-3">Harga Normal & Diskon</th>
+                <th class="py-3 px-3 text-center">% Diskon</th>
+                <th class="py-3 px-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-discount-tbody">
+              <!-- Rendered via js/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 3: DAFTAR PESANAN ───────────────────────── -->
+      <div id="admin-tab-sec-orders" class="hidden bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <h3 class="brand-font text-base font-black text-white">Daftar Transaksi & Pemesanan Pelanggan</h3>
+            <p class="text-xs text-gray-400">Pantau transaksi retail, status sewa aktif, dan pembayaran masuk.</p>
+          </div>
+          <!-- Filter Buttons -->
+          <div class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+            <button data-filter="all" onclick="filterAdminOrders('all')" class="admin-order-filter-btn px-3 py-1 rounded-lg bg-indigo-600 text-white transition">Semua</button>
+            <button data-filter="completed" onclick="filterAdminOrders('completed')" class="admin-order-filter-btn px-3 py-1 rounded-lg bg-slate-900 text-gray-400 hover:text-white transition">Selesai</button>
+            <button data-filter="active" onclick="filterAdminOrders('active')" class="admin-order-filter-btn px-3 py-1 rounded-lg bg-slate-900 text-gray-400 hover:text-white transition">Aktif Sewa</button>
+            <button data-filter="pending" onclick="filterAdminOrders('pending')" class="admin-order-filter-btn px-3 py-1 rounded-lg bg-slate-900 text-gray-400 hover:text-white transition">Pending</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-950/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <th class="py-3 px-3">No. Order & Tanggal</th>
+                <th class="py-3 px-3">Pelanggan</th>
+                <th class="py-3 px-3">Item Pesanan</th>
+                <th class="py-3 px-3">Total Bayar</th>
+                <th class="py-3 px-3 text-center">Status Transaksi</th>
+                <th class="py-3 px-3 text-right">Detail</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-tbody">
+              <!-- Rendered via js/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data/products.js"></script>
+  <script src="data/admin-data.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+      const el = document.createElement("div");
+      el.className = `p-3.5 rounded-xl text-xs font-bold text-white shadow-xl pointer-events-auto flex items-center gap-2 ${type === 'success' ? 'bg-emerald-600' : type === 'warning' ? 'bg-amber-600' : 'bg-indigo-600'}`;
+      el.innerText = msg;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    function togglePassVisibility() {
+      const inp = document.getElementById("admin-pass-input");
+      if (inp) inp.type = inp.type === "password" ? "text" : "password";
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById("admin-pass-input").value;
+      if (loginAdmin(pass)) {
+        showToast("Login Berhasil! Selamat datang Admin.", "success");
+        initAdminPanel();
+      } else {
+        showToast("Password salah! Silakan coba lagi.", "warning");
+      }
+    }
+
+    function handleAdminLogout() {
+      logoutAdmin();
+      document.getElementById("admin-login-screen").classList.remove("hidden");
+      document.getElementById("admin-main-panel").classList.add("hidden");
+      showToast("Berhasil logout dari Admin Dashboard.", "info");
+    }
+
+    function handleAdminSearch(val) {
+      adminState.searchQuery = val;
+      if (adminState.activeTab === "stock") renderAdminStockTable();
+      else if (adminState.activeTab === "discount") renderAdminDiscountTable();
+    }
+
+    function initAdminPanel() {
+      document.getElementById("admin-login-screen").classList.add("hidden");
+      document.getElementById("admin-main-panel").classList.remove("hidden");
+      renderAdminKPI();
+      setAdminTab("stock");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (checkAdminAuth()) {
+        initAdminPanel();
+      }
+    });
+  </script>
+</body>
+</html>
