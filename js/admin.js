@@ -50,7 +50,8 @@ function getAdminProducts() {
             ...match,
             isOnSale: match.isOnSale !== undefined ? match.isOnSale : m.isOnSale,
             originalPrice: match.originalPrice !== undefined ? match.originalPrice : m.originalPrice,
-            price: match.price !== undefined ? match.price : m.price
+            price: match.price !== undefined ? match.price : m.price,
+            originalRentPricePerDay: match.originalRentPricePerDay !== undefined ? match.originalRentPricePerDay : m.originalRentPricePerDay
           };
         });
       }

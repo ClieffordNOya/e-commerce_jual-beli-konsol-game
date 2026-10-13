@@ -31,7 +31,8 @@ function getStoredProductsData() {
             ...match,
             isOnSale: match.isOnSale !== undefined ? match.isOnSale : m.isOnSale,
             originalPrice: match.originalPrice !== undefined ? match.originalPrice : m.originalPrice,
-            price: match.price !== undefined ? match.price : m.price
+            price: match.price !== undefined ? match.price : m.price,
+            originalRentPricePerDay: match.originalRentPricePerDay !== undefined ? match.originalRentPricePerDay : m.originalRentPricePerDay
           };
         });
         return merged;
@@ -426,43 +427,59 @@ function renderProducts() {
 
           <!-- Info Harga (Sewa & Beli berdampingan) -->
           <div class="pt-3 grid grid-cols-2 gap-2 text-xs">
-            ${p.isRentable ? `
-              <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 flex flex-col justify-between">
-                <span class="text-[10px] font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-1">🗓️ Tarif Sewa</span>
-                <div>
-                  <span class="text-indigo-300 font-black text-base block">${formatRupiah(p.rentPricePerDay)}</span>
-                  <span class="text-[10px] text-gray-400">/hari · Min. deposit ${formatRupiah(p.securityDeposit)}</span>
+            ${p.isRentable ? (() => {
+              const currentRentPrice = p.rentPricePerDay;
+              const originalRentPrice = p.originalRentPricePerDay;
+              const hasRentDiscount = Boolean(originalRentPrice && originalRentPrice > currentRentPrice);
+              const rentDiscountPercent = hasRentDiscount ? Math.round(((originalRentPrice - currentRentPrice) / originalRentPrice) * 100) : 0;
+              return `
+                <div class="bg-indigo-950/40 p-2.5 rounded-xl border ${hasRentDiscount ? 'border-rose-900/60 bg-rose-950/20' : 'border-indigo-900/40'} flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-semibold ${hasRentDiscount ? 'text-rose-400' : 'text-indigo-400'} uppercase tracking-wider flex items-center gap-1">
+                      ${hasRentDiscount ? '🔥 Promo Sewa' : '🗓️ Tarif Sewa'}
+                    </span>
+                  </div>
+                  <div>
+                    ${hasRentDiscount ? `
+                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span style="color: #ff4d4f; font-weight: bold; font-size: 1.05em;">${formatRupiah(currentRentPrice)}</span>
+                        <span style="text-decoration: line-through; color: #8c8c8c; font-size: 0.85em;">${formatRupiah(originalRentPrice)}</span>
+                        <span style="background: #fff1f0; color: #ff4d4f; font-size: 0.75em; padding: 2px 4px; border-radius: 3px; font-weight: bold;">-${rentDiscountPercent}%</span>
+                      </div>
+                    ` : `
+                      <span class="text-indigo-300 font-black text-base block">${formatRupiah(currentRentPrice)}</span>
+                    `}
+                    <span class="text-[10px] text-gray-400">/hari · Min. deposit ${formatRupiah(p.securityDeposit)}</span>
+                  </div>
                 </div>
-              </div>
-            ` : `
+              `;
+            })() : `
               <div class="bg-slate-800/20 p-2.5 rounded-xl border border-slate-700/20 flex items-center justify-center text-center">
                 <span class="text-[11px] text-gray-500 font-medium">Tidak<br>Tersewa</span>
               </div>
             `}
 
             ${p.isBuyable ? (() => {
-              const currentPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
-              const origPrice = p.originalPrice || p.buyPrice || currentPrice;
-              const hasDiscount = Boolean(p.isOnSale && origPrice > currentPrice);
-              const discountPct = hasDiscount ? Math.round(((origPrice - currentPrice) / origPrice) * 100) : (p.promo?.discountPercent || 0);
+              const discountPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+              const originalPrice = p.originalPrice || p.buyPrice || discountPrice;
+              const hasDiscount = Boolean(p.isOnSale && originalPrice > discountPrice);
+              const discountPercent = hasDiscount ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100) : 0;
               return `
                 <div class="bg-teal-950/40 p-2.5 rounded-xl border ${p.isOnSale ? 'border-rose-900/60 bg-rose-950/20' : 'border-teal-900/40'} flex flex-col justify-between">
                   <div class="flex items-center justify-between">
                     <span class="text-[10px] font-semibold ${p.isOnSale ? 'text-rose-400' : 'text-teal-400'} uppercase tracking-wider flex items-center gap-1">
                       ${p.isOnSale ? '🔥 Promo Beli' : '🛍️ Harga Beli'}
                     </span>
-                    ${p.isOnSale && discountPct > 0 ? `
-                      <span class="text-[9px] px-1.5 py-0.5 bg-rose-500/30 text-rose-300 font-extrabold rounded border border-rose-500/40">
-                        -${discountPct}%
-                      </span>
-                    ` : ''}
                   </div>
                   <div>
-                    ${p.isOnSale ? `
-                      <div class="mb-0.5"><span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em;">${formatRupiah(origPrice)}</span></div>
-                      <span class="text-rose-400 font-black text-base block">${formatRupiah(currentPrice)}</span>
+                    ${hasDiscount ? `
+                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span style="color: #ff4d4f; font-weight: bold; font-size: 1.05em;">${formatRupiah(discountPrice)}</span>
+                        <span style="text-decoration: line-through; color: #8c8c8c; font-size: 0.85em;">${formatRupiah(originalPrice)}</span>
+                        <span style="background: #fff1f0; color: #ff4d4f; font-size: 0.75em; padding: 2px 4px; border-radius: 3px; font-weight: bold;">-${discountPercent}%</span>
+                      </div>
                     ` : `
-                      <span class="text-teal-300 font-black text-base block">${formatRupiah(currentPrice)}</span>
+                      <span class="text-teal-300 font-black text-base block">${formatRupiah(discountPrice)}</span>
                     `}
                     <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
                   </div>
