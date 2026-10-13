@@ -6,17 +6,45 @@
 
 // Inisialisasi Data Produk dan Promosi (Mendukung file:// langsung dan HTTP)
 function getStoredProductsData() {
+  const master = window.CONSOLE_PRODUCTS || [];
   try {
     const saved = localStorage.getItem("CONSOLE_PRODUCTS_OVERRIDE");
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Gabungkan dengan master data agar field terbaru (isOnSale, originalPrice, price) selalu ada
+        const merged = master.map(m => {
+          const match = parsed.find(p => p.id === m.id);
+          if (!match) return m;
+          const hasNewFields = match.price !== undefined && match.originalPrice !== undefined;
+          if (!hasNewFields) {
+            return {
+              ...m,
+              reviews: (match.reviews && match.reviews.length) ? match.reviews : m.reviews,
+              rating: match.rating || m.rating,
+              stockReady: match.stockReady !== undefined ? match.stockReady : m.stockReady,
+              stockRented: match.stockRented !== undefined ? match.stockRented : m.stockRented
+            };
+          }
+          return {
+            ...m,
+            ...match,
+            isOnSale: match.isOnSale !== undefined ? match.isOnSale : m.isOnSale,
+            originalPrice: match.originalPrice !== undefined ? match.originalPrice : m.originalPrice,
+            price: match.price !== undefined ? match.price : m.price
+          };
+        });
+        return merged;
+      }
     }
   } catch (e) {}
-  return window.CONSOLE_PRODUCTS || [];
+  return master;
 }
 
 const productsData = getStoredProductsData();
+try {
+  localStorage.setItem("CONSOLE_PRODUCTS_OVERRIDE", JSON.stringify(productsData));
+} catch (e) {}
 const promoBannersData = window.CONSOLE_BANNERS || [];
 const couponsData = window.CONSOLE_COUPONS || [];
 
@@ -332,13 +360,13 @@ function renderProducts() {
     // Badge Promosi & On Sale
     let promoBadge = "";
     if (p.isOnSale) {
-      const orig = p.originalPrice || p.buyPrice;
-      const curr = p.buyPrice || p.discountPrice;
-      const pct = orig > curr ? Math.round(((orig - curr) / orig) * 100) : 0;
+      const orig = p.originalPrice || p.buyPrice || p.price || 0;
+      const curr = p.price !== undefined ? p.price : (p.discountPrice || p.buyPrice || 0);
+      const pct = (orig > curr && orig > 0) ? Math.round(((orig - curr) / orig) * 100) : (p.promo?.discountPercent || 15);
       promoBadge = `
         <div class="absolute top-3 left-3 z-10">
           <span class="px-2.5 py-1 bg-gradient-to-r from-rose-600 to-red-500 text-white text-[11px] font-black uppercase tracking-wider rounded-lg shadow-lg flex items-center gap-1 animate-pulse">
-            🔥 SALE ${pct > 0 ? `-${pct}%` : ''}
+            🔥 Diskon ${pct}%
           </span>
         </div>
       `;
@@ -413,28 +441,28 @@ function renderProducts() {
             `}
 
             ${p.isBuyable ? (() => {
-              const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
-              const origPrice = p.originalPrice || p.buyPrice;
-              const hasDiscount = p.isOnSale && origPrice > effectiveBuyPrice;
-              const discountPct = hasDiscount ? Math.round(((origPrice - effectiveBuyPrice) / origPrice) * 100) : 0;
+              const currentPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+              const origPrice = p.originalPrice || p.buyPrice || currentPrice;
+              const hasDiscount = Boolean(p.isOnSale && origPrice > currentPrice);
+              const discountPct = hasDiscount ? Math.round(((origPrice - currentPrice) / origPrice) * 100) : (p.promo?.discountPercent || 0);
               return `
-                <div class="bg-teal-950/40 p-2.5 rounded-xl border ${hasDiscount ? 'border-rose-900/60 bg-rose-950/20' : 'border-teal-900/40'} flex flex-col justify-between">
+                <div class="bg-teal-950/40 p-2.5 rounded-xl border ${p.isOnSale ? 'border-rose-900/60 bg-rose-950/20' : 'border-teal-900/40'} flex flex-col justify-between">
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-semibold ${hasDiscount ? 'text-rose-400' : 'text-teal-400'} uppercase tracking-wider flex items-center gap-1">
-                      ${hasDiscount ? '🔥 Promo Beli' : '🛍️ Harga Beli'}
+                    <span class="text-[10px] font-semibold ${p.isOnSale ? 'text-rose-400' : 'text-teal-400'} uppercase tracking-wider flex items-center gap-1">
+                      ${p.isOnSale ? '🔥 Promo Beli' : '🛍️ Harga Beli'}
                     </span>
-                    ${hasDiscount ? `
+                    ${p.isOnSale && discountPct > 0 ? `
                       <span class="text-[9px] px-1.5 py-0.5 bg-rose-500/30 text-rose-300 font-extrabold rounded border border-rose-500/40">
                         -${discountPct}%
                       </span>
                     ` : ''}
                   </div>
                   <div>
-                    ${hasDiscount ? `
-                      <span class="text-[11px] text-gray-400 line-through block leading-none mb-0.5">${formatRupiah(origPrice)}</span>
-                      <span class="text-rose-400 font-black text-base block">${formatRupiah(effectiveBuyPrice)}</span>
+                    ${p.isOnSale ? `
+                      <div class="mb-0.5"><span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em;">${formatRupiah(origPrice)}</span></div>
+                      <span class="text-rose-400 font-black text-base block">${formatRupiah(currentPrice)}</span>
                     ` : `
-                      <span class="text-teal-300 font-black text-base block">${formatRupiah(effectiveBuyPrice)}</span>
+                      <span class="text-teal-300 font-black text-base block">${formatRupiah(currentPrice)}</span>
                     `}
                     <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
                   </div>
@@ -459,14 +487,14 @@ function renderProducts() {
               </button>
             ` : ''}
             ${p.isBuyable ? (() => {
-              const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
-              const hasDiscount = p.isOnSale && (p.originalPrice || p.buyPrice) > effectiveBuyPrice;
+              const currentPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+              const isSale = Boolean(p.isOnSale);
               return `
                 <button onclick="openProductDetail('${p.id}', 'buy')"
                   class="group/btn py-2.5 px-3 rounded-xl font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all duration-200
-                    ${hasDiscount ? 'bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 border-rose-500 shadow-rose-600/30' : 'bg-teal-600 hover:bg-teal-500 border-teal-500 shadow-teal-600/25'} text-white shadow-lg hover:shadow-xl hover:scale-[1.02] border">
-                  <span class="text-sm">${hasDiscount ? '🔥 BELI SALE' : '🛍️ BELI'}</span>
-                  <span class="text-[10px] font-normal opacity-90">${formatRupiah(effectiveBuyPrice)}</span>
+                    ${isSale ? 'bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 border-rose-500 shadow-rose-600/30' : 'bg-teal-600 hover:bg-teal-500 border-teal-500 shadow-teal-600/25'} text-white shadow-lg hover:shadow-xl hover:scale-[1.02] border">
+                  <span class="text-sm">${isSale ? '🔥 BELI SALE' : '🛍️ BELI'}</span>
+                  <span class="text-[10px] font-normal opacity-90">${formatRupiah(currentPrice)}</span>
                 </button>
               `;
             })() : ''}
@@ -690,10 +718,10 @@ function renderModalContent() {
               </span>
               <span class="text-xs text-gray-400">• ${p.categoryLabel}</span>
               ${(() => {
-                const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
-                const origPrice = p.originalPrice || p.buyPrice;
-                const hasDiscount = p.isOnSale && origPrice > effectiveBuyPrice;
-                const pct = hasDiscount ? Math.round(((origPrice - effectiveBuyPrice) / origPrice) * 100) : 0;
+                const effectiveBuyPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+                const origPrice = p.originalPrice || p.buyPrice || effectiveBuyPrice;
+                const hasDiscount = Boolean(p.isOnSale && origPrice > effectiveBuyPrice);
+                const pct = hasDiscount ? Math.round(((origPrice - effectiveBuyPrice) / origPrice) * 100) : (p.promo?.discountPercent || 0);
                 return hasDiscount ? `
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-gradient-to-r from-rose-600 to-red-500 text-white shadow-sm flex items-center gap-1">
                     🔥 SALE -${pct}%
@@ -721,9 +749,9 @@ function renderModalContent() {
               </button>
 
               ${(() => {
-                const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
-                const origPrice = p.originalPrice || p.buyPrice;
-                const hasDiscount = p.isOnSale && origPrice > effectiveBuyPrice;
+                const effectiveBuyPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+                const origPrice = p.originalPrice || p.buyPrice || effectiveBuyPrice;
+                const hasDiscount = Boolean(p.isOnSale && origPrice > effectiveBuyPrice);
                 return `
                   <button onclick="setModalMode('buy')" ${!p.isBuyable ? 'disabled' : ''} class="py-2.5 px-4 rounded-lg font-bold text-xs md:text-sm flex flex-col items-center gap-1 transition ${!isRentActive ? (hasDiscount ? 'bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-lg shadow-rose-600/30' : 'bg-teal-600 text-white shadow-lg shadow-teal-600/30') : 'text-gray-400 hover:text-white'} ${!p.isBuyable ? 'opacity-40 cursor-not-allowed' : ''}">
                     <span class="flex items-center gap-1">
@@ -731,7 +759,7 @@ function renderModalContent() {
                       ${hasDiscount ? `<span class="text-[9px] bg-white text-rose-600 px-1.5 py-0.2 rounded font-black">DISKON</span>` : ''}
                     </span>
                     <span class="text-[10px] font-normal ${!isRentActive ? 'text-white' : 'text-gray-500'}">
-                      ${hasDiscount ? `<span class="line-through opacity-75 mr-1">${formatRupiah(origPrice)}</span>` : ''}
+                      ${hasDiscount ? `<span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em;" class="mr-1">${formatRupiah(origPrice)}</span>` : ''}
                       <strong>${formatRupiah(effectiveBuyPrice)}</strong>
                     </span>
                   </button>
@@ -872,9 +900,9 @@ function renderModalPricingSummary() {
     `;
   } else {
     // Mode Beli: gunakan effectiveBuyPrice (harga diskon otomatis jika isOnSale)
-    const effectivePrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
-    const origPrice = p.originalPrice || p.buyPrice;
-    const hasDiscount = p.isOnSale && origPrice > effectivePrice;
+    const effectivePrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+    const origPrice = p.originalPrice || p.buyPrice || effectivePrice;
+    const hasDiscount = Boolean(p.isOnSale && origPrice > effectivePrice);
     const totalOriginal = origPrice * state.modalQuantity;
     const totalPay = effectivePrice * state.modalQuantity;
     const totalSavings = totalOriginal - totalPay;
@@ -884,7 +912,7 @@ function renderModalPricingSummary() {
         <div class="flex justify-between text-gray-400">
           <span>Harga Satuan:</span>
           <div>
-            ${hasDiscount ? `<span class="line-through text-gray-500 text-[11px] mr-1.5">${formatRupiah(origPrice)}</span>` : ''}
+            ${hasDiscount ? `<span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em;" class="text-gray-500 mr-1.5">${formatRupiah(origPrice)}</span>` : ''}
             <span class="${hasDiscount ? 'text-rose-400 font-black' : 'text-gray-200 font-semibold'}">${formatRupiah(effectivePrice)}</span>
           </div>
         </div>
@@ -948,9 +976,9 @@ window.addModalItemToCart = function() {
     }
   } else {
     // Mode Buy — Otomatis menggunakan harga diskon jika isOnSale
-    const effectivePrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
-    const origPrice = p.originalPrice || p.buyPrice;
-    const isSale = !!p.isOnSale && origPrice > effectivePrice;
+    const effectivePrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+    const origPrice = p.originalPrice || p.buyPrice || effectivePrice;
+    const isSale = Boolean(p.isOnSale && origPrice > effectivePrice);
 
     if (existingIndex > -1) {
       state.cart[existingIndex].quantity += state.modalQuantity;
@@ -1119,7 +1147,7 @@ function renderCartDrawer() {
               ${item.mode === 'rent'
                 ? `Sewa: ${formatRupiah(item.rentSubtotal)} + Dep: ${formatRupiah(item.securityDeposit)}`
                 : (isBuyOnSale
-                  ? `<span class="line-through text-gray-500 mr-1">${formatRupiah(item.originalPrice)}</span><span class="text-rose-400 font-bold">${formatRupiah(item.buyPrice)}</span> <span class="text-gray-400 font-medium">x ${item.quantity}</span>`
+                  ? `<span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em;" class="mr-1 text-gray-500">${formatRupiah(item.originalPrice)}</span><span class="text-rose-400 font-bold">${formatRupiah(item.buyPrice)}</span> <span class="text-gray-400 font-medium">x ${item.quantity}</span>`
                   : `${item.quantity} x ${formatRupiah(item.buyPrice)}`
                 )
               }

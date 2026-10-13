@@ -26,14 +26,37 @@ function saveAdminOrders(orders) {
 
 // Inisialisasi data produk yang tersimpan
 function getAdminProducts() {
+  const master = window.CONSOLE_PRODUCTS || [];
   try {
     const saved = localStorage.getItem("CONSOLE_PRODUCTS_OVERRIDE");
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return master.map(m => {
+          const match = parsed.find(p => p.id === m.id);
+          if (!match) return m;
+          const hasNewFields = match.price !== undefined && match.originalPrice !== undefined;
+          if (!hasNewFields) {
+            return {
+              ...m,
+              reviews: (match.reviews && match.reviews.length) ? match.reviews : m.reviews,
+              rating: match.rating || m.rating,
+              stockReady: match.stockReady !== undefined ? match.stockReady : m.stockReady,
+              stockRented: match.stockRented !== undefined ? match.stockRented : m.stockRented
+            };
+          }
+          return {
+            ...m,
+            ...match,
+            isOnSale: match.isOnSale !== undefined ? match.isOnSale : m.isOnSale,
+            originalPrice: match.originalPrice !== undefined ? match.originalPrice : m.originalPrice,
+            price: match.price !== undefined ? match.price : m.price
+          };
+        });
+      }
     }
   } catch (e) {}
-  return window.CONSOLE_PRODUCTS || [];
+  return master;
 }
 
 function saveAdminProducts(products) {
@@ -301,13 +324,14 @@ window.toggleProductSale = function(prodId, isSale) {
     p.discountPrice = Math.round(p.originalPrice * 0.9); // default 10% diskon
   }
   p.buyPrice = isSale ? p.discountPrice : p.originalPrice;
+  p.price = p.buyPrice;
 
   // Sesuaikan promo badge
   if (isSale) {
     const pct = Math.round(((p.originalPrice - p.discountPrice) / p.originalPrice) * 100);
     p.promo = {
       hasPromo: true,
-      badgeText: `Sale ${pct}%`,
+      badgeText: `🔥 Diskon ${pct}%`,
       discountPercent: pct,
       promoType: "buy",
       promoDescription: `Promo Diskon ${pct}% untuk pembelian unit!`
@@ -327,8 +351,12 @@ window.updateProductPricing = function(prodId, field, val) {
   p[field] = num;
   if (p.isOnSale && field === "discountPrice") {
     p.buyPrice = num;
+    p.price = num;
   } else if (!p.isOnSale && field === "originalPrice") {
     p.buyPrice = num;
+    p.price = num;
+  } else if (field === "price") {
+    p.price = num;
   }
   saveAdminProducts(adminState.products);
   renderAdminDiscountTable();

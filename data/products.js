@@ -2,7 +2,7 @@
  * CONSOLE HUB - Master Data Produk (20 Dummy Products)
  * Mencakup: Konsol Game, Suku Cadang/Tools Servis, Aksesoris, & Game Fisik
  * Mendukung model hybrid: Sewa (Rental) dan Beli (Retail)
- * v2.0 — tambahan: isOnSale, originalPrice, discountPrice, reviews[]
+ * Atribut utama: isOnSale (boolean), originalPrice (number), price (number), discountPrice (number), rating (number), reviews (array)
  */
 
 const products = [
@@ -23,10 +23,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 8900000,
-    originalPrice: 9500000,
-    discountPrice: 8900000,
-    isOnSale: false,
+    isOnSale: true,
+    originalPrice: 9600000,
+    price: 8400000,
+    buyPrice: 8400000,
+    discountPrice: 8400000,
     rentPricePerDay: 120000,
     rentPricePerWeek: 700000,
     securityDeposit: 500000,
@@ -35,10 +36,10 @@ const products = [
     nextAvailableDate: "2026-09-11",
     promo: {
       hasPromo: true,
-      badgeText: "Diskon 15% Sewa Weekend",
-      discountPercent: 15,
-      promoType: "rental",
-      promoDescription: "Gunakan kupon WEEKENDGAS untuk diskon 15% biaya sewa konsol minimal 2 hari!"
+      badgeText: "Diskon 12.5%",
+      discountPercent: 13,
+      promoType: "buy",
+      promoDescription: "Promo Diskon Spesial PlayStation 5 Slim Disc Edition!"
     },
     rentalTerms: [
       "Wajib menyertakan foto e-KTP dan 1 identitas pendukung (SIM/NPWP/KK)",
@@ -50,8 +51,7 @@ const products = [
     reviews: [
       { id: "rv-01-1", reviewer: "Andi Prasetyo", avatar: "AP", rating: 5, date: "2026-08-15", comment: "Konsol bersih, controller responsif banget. PS5 Slim emang ringan dan kecil. Recommended buat yang pengen main Spider-Man 2 sama God of War Ragnarok!", type: "rent" },
       { id: "rv-01-2", reviewer: "Reni Susanti", avatar: "RS", rating: 5, date: "2026-08-20", comment: "Sewa 3 hari buat weekend marathon, kondisi unit mulus kayak baru. Deposit balik semua. Paling suka DualSense-nya yang kerasa banget getarannya!", type: "rent" },
-      { id: "rv-01-3", reviewer: "Budi Santoso", avatar: "BS", rating: 5, date: "2026-09-01", comment: "Beli unit-nya worth banget, harga lebih murah dari tempat lain dan dapat garansi 1 tahun. Pengiriman cepat, packing aman.", type: "buy" },
-      { id: "rv-01-4", reviewer: "Nadia Putri", avatar: "NP", rating: 4, date: "2026-09-05", comment: "Oke sih, tapi waktu pickup lumayan lama nunggu konfirmasi. Unitnya sendiri bagus, game pilihan-nya seru-seru.", type: "rent" }
+      { id: "rv-01-3", reviewer: "Budi Santoso", avatar: "BS", rating: 5, date: "2026-09-01", comment: "Beli unit-nya worth banget, harga diskon lebih murah dari tempat lain dan dapat garansi 1 tahun. Pengiriman cepat, packing aman.", type: "buy" }
     ]
   },
   {
@@ -70,10 +70,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 7600000,
-    originalPrice: 8200000,
-    discountPrice: 7600000,
     isOnSale: true,
+    originalPrice: 8500000,
+    price: 7400000,
+    buyPrice: 7400000,
+    discountPrice: 7400000,
     rentPricePerDay: 100000,
     rentPricePerWeek: 580000,
     securityDeposit: 400000,
@@ -82,10 +83,10 @@ const products = [
     nextAvailableDate: "2026-09-10",
     promo: {
       hasPromo: true,
-      badgeText: "Best Value",
-      discountPercent: 10,
-      promoType: "all",
-      promoDescription: "Diskon 10% sewa mingguan, sudah include akses PS Plus Deluxe!"
+      badgeText: "Diskon 13%",
+      discountPercent: 13,
+      promoType: "buy",
+      promoDescription: "Diskon PS5 Digital Edition unit resmi Sony!"
     },
     rentalTerms: [
       "Wajib verifikasi KTP & domisili jelas",
@@ -95,9 +96,8 @@ const products = [
     rating: 4.8,
     reviewsCount: 98,
     reviews: [
-      { id: "rv-02-1", reviewer: "Kevin Lie", avatar: "KL", rating: 5, date: "2026-08-10", comment: "Sewa buat main Baldur's Gate 3 seminggu, nyaman banget! Akun PSN-nya banyak game gratis. Recommended banget buat yang budget terbatas.", type: "rent" },
-      { id: "rv-02-2", reviewer: "Sari Dewi", avatar: "SD", rating: 4, date: "2026-08-22", comment: "Unitnya mulus, tapi lebih suka versi disc edition karena bisa main kaset. Selain itu oke banget!", type: "rent" },
-      { id: "rv-02-3", reviewer: "Arif Rahman", avatar: "AR", rating: 5, date: "2026-09-03", comment: "Beli setelah coba sewa 2x. Kondisi unit seperti baru, ada garansi resmi. Harga paling kompetitif di pasaran.", type: "buy" }
+      { id: "rv-02-1", reviewer: "Kevin Lie", avatar: "KL", rating: 5, date: "2026-08-10", comment: "Sewa buat main Baldur's Gate 3 seminggu, nyaman banget! Akun PSN-nya banyak game gratis.", type: "rent" },
+      { id: "rv-02-2", reviewer: "Arif Rahman", avatar: "AR", rating: 5, date: "2026-09-03", comment: "Beli setelah coba sewa 2x. Kondisi unit seperti baru, ada garansi resmi. Harga diskonnya mantap.", type: "buy" }
     ]
   },
   {
@@ -116,10 +116,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 5200000,
-    originalPrice: 5200000,
-    discountPrice: 4600000,
     isOnSale: true,
+    originalPrice: 5500000,
+    price: 4675000,
+    buyPrice: 4675000,
+    discountPrice: 4675000,
     rentPricePerDay: 65000,
     rentPricePerWeek: 390000,
     securityDeposit: 300000,
@@ -128,10 +129,10 @@ const products = [
     nextAvailableDate: "2026-09-09",
     promo: {
       hasPromo: true,
-      badgeText: "Hemat 11.5%",
-      discountPercent: 11,
+      badgeText: "Diskon 15%",
+      discountPercent: 15,
       promoType: "buy",
-      promoDescription: "Harga spesial Rp 4.600.000 untuk unit Zelda Edition! Stok terbatas."
+      promoDescription: "Harga spesial Zelda Edition hemat 15%!"
     },
     rentalTerms: [
       "Deposit Rp 300.000 untuk unit + Joy-Con",
@@ -141,10 +142,8 @@ const products = [
     rating: 4.9,
     reviewsCount: 211,
     reviews: [
-      { id: "rv-03-1", reviewer: "Hana Pratiwi", avatar: "HP", rating: 5, date: "2026-07-20", comment: "Edisi Zelda ini luar biasa! Joy-Con warnanya kece, layar OLED-nya tajam banget. Sewa buat liburan keluarga, anak-anak senang!", type: "rent" },
-      { id: "rv-03-2", reviewer: "Dimas Kurniawan", avatar: "DK", rating: 5, date: "2026-08-05", comment: "Beli unit ini karena desainnya eksklusif. Kondisi mint, ada bonus case. Harga sale-nya worth banget.", type: "buy" },
-      { id: "rv-03-3", reviewer: "Fitri Anggraini", avatar: "FA", rating: 4, date: "2026-08-18", comment: "Sewa seminggu buat main Zelda TotK, pengalaman luar biasa! Joy-Con-nya masih mulus, tidak ada drift.", type: "rent" },
-      { id: "rv-03-4", reviewer: "Rizky Maulana", avatar: "RM", rating: 5, date: "2026-09-02", comment: "Unit limited edition seperti ini jarang ada yang mau sewain. Langsung beli setelah lihat kualitasnya. Best purchase ever!", type: "buy" }
+      { id: "rv-03-1", reviewer: "Hana Pratiwi", avatar: "HP", rating: 5, date: "2026-07-20", comment: "Edisi Zelda ini luar biasa! Joy-Con warnanya kece, layar OLED-nya tajam banget.", type: "rent" },
+      { id: "rv-03-2", reviewer: "Dimas Kurniawan", avatar: "DK", rating: 5, date: "2026-08-05", comment: "Beli unit ini karena desainnya eksklusif. Harga diskonnya sangat worth it.", type: "buy" }
     ]
   },
   {
@@ -163,10 +162,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 8200000,
-    originalPrice: 8200000,
-    discountPrice: 8200000,
     isOnSale: false,
+    originalPrice: 8200000,
+    price: 8200000,
+    buyPrice: 8200000,
+    discountPrice: 8200000,
     rentPricePerDay: 100000,
     rentPricePerWeek: 600000,
     securityDeposit: 450000,
@@ -188,9 +188,7 @@ const products = [
     rating: 4.7,
     reviewsCount: 87,
     reviews: [
-      { id: "rv-04-1", reviewer: "Galih Permana", avatar: "GP", rating: 5, date: "2026-08-12", comment: "Xbox Series X emang raja 4K gaming! Quick Resume-nya keren, bisa lompat-lompat antar game tanpa loading. Game Pass-nya isi game AAA semua.", type: "rent" },
-      { id: "rv-04-2", reviewer: "Tiara Wulandari", avatar: "TW", rating: 4, date: "2026-08-25", comment: "Performa top, tapi ukurannya gede banget kayak menara. Unit bersih dan responsive. Game Pass Ultimate-nya lengkap.", type: "rent" },
-      { id: "rv-04-3", reviewer: "Fajar Nugroho", avatar: "FN", rating: 5, date: "2026-09-07", comment: "Beli unit ini karena mau main Forza Motorsport dan Starfield. Kualitas unit bagus, pengiriman tepat waktu.", type: "buy" }
+      { id: "rv-04-1", reviewer: "Galih Permana", avatar: "GP", rating: 5, date: "2026-08-12", comment: "Xbox Series X emang raja 4K gaming! Quick Resume-nya keren.", type: "rent" }
     ]
   },
   {
@@ -210,10 +208,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 7800000,
-    originalPrice: 8500000,
-    discountPrice: 7800000,
     isOnSale: true,
+    originalPrice: 8800000,
+    price: 7480000,
+    buyPrice: 7480000,
+    discountPrice: 7480000,
     rentPricePerDay: 95000,
     rentPricePerWeek: 560000,
     securityDeposit: 400000,
@@ -222,10 +221,10 @@ const products = [
     nextAvailableDate: "2026-09-13",
     promo: {
       hasPromo: true,
-      badgeText: "Sale 8% Off",
-      discountPercent: 8,
+      badgeText: "Diskon 15%",
+      discountPercent: 15,
       promoType: "buy",
-      promoDescription: "Harga spesial pembelian Steam Deck OLED 512GB, hemat Rp 700.000!"
+      promoDescription: "Harga spesial pembelian Steam Deck OLED 512GB!"
     },
     rentalTerms: [
       "Deposit Rp 400.000, sudah termasuk akun Steam dengan 30+ game terinstal",
@@ -235,9 +234,8 @@ const products = [
     rating: 4.8,
     reviewsCount: 134,
     reviews: [
-      { id: "rv-05-1", reviewer: "Yusuf Hakim", avatar: "YH", rating: 5, date: "2026-07-30", comment: "Steam Deck OLED ini game changer buat gaming mobile. Layarnya jauh lebih enak dari versi LCD. Library Steam-nya lengkap banget.", type: "rent" },
-      { id: "rv-05-2", reviewer: "Mira Sari", avatar: "MS", rating: 5, date: "2026-08-14", comment: "Beli karena harganya lagi sale. Kondisi unit new, worth it banget buat harga segitu. Gaming PC portable yang sesungguhnya!", type: "buy" },
-      { id: "rv-05-3", reviewer: "Eko Prasetya", avatar: "EP", rating: 4, date: "2026-08-28", comment: "Sewa 5 hari buat cobain sebelum beli. Performanya keren, tapi agak berat dipegang lama-lama. Overall recommended.", type: "rent" }
+      { id: "rv-05-1", reviewer: "Yusuf Hakim", avatar: "YH", rating: 5, date: "2026-07-30", comment: "Steam Deck OLED ini game changer buat gaming mobile. Layarnya luar biasa.", type: "rent" },
+      { id: "rv-05-2", reviewer: "Mira Sari", avatar: "MS", rating: 5, date: "2026-08-14", comment: "Beli karena harganya lagi sale. Kondisi unit new, worth it!", type: "buy" }
     ]
   },
   {
@@ -257,10 +255,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 11500000,
-    originalPrice: 12500000,
-    discountPrice: 11500000,
     isOnSale: true,
+    originalPrice: 12900000,
+    price: 11200000,
+    buyPrice: 11200000,
+    discountPrice: 11200000,
     rentPricePerDay: 130000,
     rentPricePerWeek: 780000,
     securityDeposit: 600000,
@@ -269,8 +268,8 @@ const products = [
     nextAvailableDate: "2026-09-15",
     promo: {
       hasPromo: true,
-      badgeText: "Hemat 8% Beli",
-      discountPercent: 8,
+      badgeText: "Diskon 13%",
+      discountPercent: 13,
       promoType: "buy",
       promoDescription: "Harga spesial untuk ROG Ally X, unit terbatas!"
     },
@@ -282,8 +281,7 @@ const products = [
     rating: 4.7,
     reviewsCount: 76,
     reviews: [
-      { id: "rv-06-1", reviewer: "Hendri Kurnia", avatar: "HK", rating: 5, date: "2026-08-08", comment: "ROG Ally X baterai 80Wh ini endgame banget! Bisa gaming 5 jam non-stop. Windows 11 full, jadi bisa install apa aja.", type: "rent" },
-      { id: "rv-06-2", reviewer: "Wulan Astuti", avatar: "WA", rating: 4, date: "2026-08-20", comment: "Performa luar biasa, tapi agak panas kalau di-push full. Fan-nya lumayan berisik tapi wajar untuk GPU 12 CU. Sale price-nya worth.", type: "buy" }
+      { id: "rv-06-1", reviewer: "Hendri Kurnia", avatar: "HK", rating: 5, date: "2026-08-08", comment: "ROG Ally X baterai 80Wh ini endgame banget! Bisa gaming lama tanpa charger.", type: "rent" }
     ]
   },
   {
@@ -302,10 +300,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 2600000,
-    originalPrice: 3000000,
-    discountPrice: 2600000,
     isOnSale: true,
+    originalPrice: 3200000,
+    price: 2560000,
+    buyPrice: 2560000,
+    discountPrice: 2560000,
     rentPricePerDay: 40000,
     rentPricePerWeek: 240000,
     securityDeposit: 200000,
@@ -314,10 +313,10 @@ const products = [
     nextAvailableDate: "2026-09-09",
     promo: {
       hasPromo: true,
-      badgeText: "Budget Best Pick",
-      discountPercent: 13,
+      badgeText: "Diskon 20%",
+      discountPercent: 20,
       promoType: "buy",
-      promoDescription: "PS4 Pro refurbished terbaik harga terjangkau, garansi 6 bulan!"
+      promoDescription: "PS4 Pro refurbished terbaik harga terjangkau!"
     },
     rentalTerms: [
       "Deposit Rp 200.000 untuk unit PS4 Pro",
@@ -327,9 +326,7 @@ const products = [
     rating: 4.6,
     reviewsCount: 203,
     reviews: [
-      { id: "rv-07-1", reviewer: "Pak Bambang", avatar: "PB", rating: 5, date: "2026-07-15", comment: "Beli buat anak-anak main di rumah, kondisi mulus kayak baru. Harga Rp 2.6jt worth banget, library game PS4 bejibun!", type: "buy" },
-      { id: "rv-07-2", reviewer: "Citra Lestari", avatar: "CL", rating: 4, date: "2026-08-02", comment: "Sewa 2 minggu, kondisi unit oke. Nggak ada drift, controller lancar. Budget-friendly banget!", type: "rent" },
-      { id: "rv-07-3", reviewer: "Ahmad Fauzi", avatar: "AF", rating: 5, date: "2026-08-17", comment: "Refurbished tapi kualitasnya premium. Sudah test 3 hari, tidak ada masalah sama sekali. Recommended!", type: "buy" }
+      { id: "rv-07-1", reviewer: "Pak Bambang", avatar: "PB", rating: 5, date: "2026-07-15", comment: "Beli buat anak-anak main di rumah, kondisi mulus kayak baru.", type: "buy" }
     ]
   },
   {
@@ -349,10 +346,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 890000,
-    originalPrice: 890000,
-    discountPrice: 890000,
-    isOnSale: false,
+    isOnSale: true,
+    originalPrice: 1000000,
+    price: 840000,
+    buyPrice: 840000,
+    discountPrice: 840000,
     rentPricePerDay: 18000,
     rentPricePerWeek: 100000,
     securityDeposit: 100000,
@@ -361,21 +359,19 @@ const products = [
     nextAvailableDate: "2026-09-09",
     promo: {
       hasPromo: true,
-      badgeText: "Kupon SERVISPRO",
-      discountPercent: 0,
-      promoType: "rental",
-      promoDescription: "Gunakan SERVISPRO untuk diskon Rp 25.000 sewa toolkit reparasi!"
+      badgeText: "Diskon 16%",
+      discountPercent: 16,
+      promoType: "buy",
+      promoDescription: "Diskon toolkit presisi iFixit original!"
     },
     rentalTerms: [
       "Kembalikan semua 64 mata bor dalam case aluminium",
-      "Deposit Rp 100.000 untuk keamanan toolkit",
-      "Tersedia layanan antar-jemput untuk teknisi langganan"
+      "Deposit Rp 100.000 untuk keamanan toolkit"
     ],
     rating: 4.8,
     reviewsCount: 67,
     reviews: [
-      { id: "rv-08-1", reviewer: "Mas Teknisi Budi", avatar: "MB", rating: 5, date: "2026-08-01", comment: "Toolkit lengkap banget! Semua bit yang dibutuhkan buat servis PS5, Switch, ROG Ally ada. Presisi tinggi, tidak mudah dol.", type: "buy" },
-      { id: "rv-08-2", reviewer: "Deni Repair", avatar: "DR", rating: 5, date: "2026-08-19", comment: "Sewa buat servis 5 unit PS4, sangat membantu. Driver handle-nya ergonomis dan magnet bit-nya kuat.", type: "rent" }
+      { id: "rv-08-1", reviewer: "Mas Teknisi Budi", avatar: "MB", rating: 5, date: "2026-08-01", comment: "Toolkit lengkap banget! Semua bit buat servis konsol ada.", type: "buy" }
     ]
   },
   {
@@ -395,10 +391,11 @@ const products = [
     ],
     isRentable: false,
     isBuyable: true,
-    buyPrice: 195000,
-    originalPrice: 220000,
-    discountPrice: 195000,
     isOnSale: true,
+    originalPrice: 240000,
+    price: 195000,
+    buyPrice: 195000,
+    discountPrice: 195000,
     rentPricePerDay: 0,
     rentPricePerWeek: 0,
     securityDeposit: 0,
@@ -407,8 +404,8 @@ const products = [
     nextAvailableDate: null,
     promo: {
       hasPromo: true,
-      badgeText: "Sale 11%",
-      discountPercent: 11,
+      badgeText: "Diskon 19%",
+      discountPercent: 19,
       promoType: "buy",
       promoDescription: "Harga promo thermal paste terbaik untuk repaste konsol overheat!"
     },
@@ -416,9 +413,7 @@ const products = [
     rating: 4.9,
     reviewsCount: 89,
     reviews: [
-      { id: "rv-09-1", reviewer: "Rizal Teknisi", avatar: "RT", rating: 5, date: "2026-07-25", comment: "Thermal paste terbaik yang pernah aku pakai. Suhu PS5 drop dari 82°C ke 68°C setelah repaste pakai Kryonaut Extreme ini!", type: "buy" },
-      { id: "rv-09-2", reviewer: "Ike Elektronik", avatar: "IE", rating: 5, date: "2026-08-11", comment: "Harga promo lumayan murah untuk kualitas top tier. 2 gram cukup buat repaste 2 unit PS5. Direkomendasikan.", type: "buy" },
-      { id: "rv-09-3", reviewer: "Pak Servis Pro", avatar: "SP", rating: 4, date: "2026-09-01", comment: "Kualitas premium. Satu-satunya kekurangan adalah sedikit susah karena viskositas agak kental. Tapi hasilnya luar biasa.", type: "buy" }
+      { id: "rv-09-1", reviewer: "Rizal Teknisi", avatar: "RT", rating: 5, date: "2026-07-25", comment: "Suhu PS5 drop signifikan setelah repaste pakai Kryonaut Extreme ini!", type: "buy" }
     ]
   },
   {
@@ -438,10 +433,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 580000,
+    isOnSale: false,
     originalPrice: 650000,
-    discountPrice: 580000,
-    isOnSale: true,
+    price: 650000,
+    buyPrice: 650000,
+    discountPrice: 650000,
     rentPricePerDay: 45000,
     rentPricePerWeek: 265000,
     securityDeposit: 200000,
@@ -449,22 +445,20 @@ const products = [
     stockRented: 2,
     nextAvailableDate: "2026-09-09",
     promo: {
-      hasPromo: true,
-      badgeText: "Kupon SERVISPRO",
+      hasPromo: false,
+      badgeText: "",
       discountPercent: 0,
-      promoType: "rental",
-      promoDescription: "Kupon SERVISPRO berlaku untuk diskon Rp 25.000!"
+      promoType: "none",
+      promoDescription: ""
     },
     rentalTerms: [
       "Deposit Rp 200.000 untuk station",
-      "Kembalikan dengan semua tip dan accessories",
-      "Wajib bersihkan ujung solder sebelum dikembalikan"
+      "Kembalikan dengan semua tip dan accessories"
     ],
     rating: 4.6,
     reviewsCount: 44,
     reviews: [
-      { id: "rv-10-1", reviewer: "Yanto Repair", avatar: "YR", rating: 5, date: "2026-08-05", comment: "Beli untuk kebutuhan workshop. Solder station 2-in-1 ini harganya sangat terjangkau untuk kualitas segini. Hot air gun-nya stabil.", type: "buy" },
-      { id: "rv-10-2", reviewer: "Servis Kilat", avatar: "SK", rating: 4, date: "2026-08-22", comment: "Sewa buat repair HDMI port PS5 dan BGA reballing. Kerjanya presisi. Layar digital memudahkan kontrol suhu.", type: "rent" }
+      { id: "rv-10-1", reviewer: "Yanto Repair", avatar: "YR", rating: 5, date: "2026-08-05", comment: "Beli untuk workshop. Hot air gun-nya stabil.", type: "buy" }
     ]
   },
   {
@@ -483,10 +477,11 @@ const products = [
     ],
     isRentable: false,
     isBuyable: true,
-    buyPrice: 145000,
-    originalPrice: 175000,
-    discountPrice: 145000,
     isOnSale: true,
+    originalPrice: 180000,
+    price: 144000,
+    buyPrice: 144000,
+    discountPrice: 144000,
     rentPricePerDay: 0,
     rentPricePerWeek: 0,
     securityDeposit: 0,
@@ -495,17 +490,16 @@ const products = [
     nextAvailableDate: null,
     promo: {
       hasPromo: true,
-      badgeText: "Sale 17%",
-      discountPercent: 17,
+      badgeText: "Diskon 20%",
+      discountPercent: 20,
       promoType: "buy",
-      promoDescription: "Paket RCM Kit Switch hemat 17%, stok terbatas!"
+      promoDescription: "Paket RCM Kit Switch hemat 20%!"
     },
     rentalTerms: [],
     rating: 4.5,
     reviewsCount: 56,
     reviews: [
-      { id: "rv-11-1", reviewer: "Modder Pro", avatar: "MP", rating: 5, date: "2026-08-03", comment: "Kit lengkap, jig fit sempurna di slot Joy-Con. MicroSD sudah siap pakai. Harga murah untuk kualitas aluminium.", type: "buy" },
-      { id: "rv-11-2", reviewer: "DIY Switch", avatar: "DS", rating: 4, date: "2026-09-01", comment: "Bekerja dengan baik untuk Switch V1. Panduan CFW-nya detail banget. Sale price sangat worth!", type: "buy" }
+      { id: "rv-11-1", reviewer: "Modder Pro", avatar: "MP", rating: 5, date: "2026-08-03", comment: "Kit lengkap, jig fit sempurna di slot Joy-Con.", type: "buy" }
     ]
   },
   {
@@ -525,10 +519,11 @@ const products = [
     ],
     isRentable: false,
     isBuyable: true,
-    buyPrice: 265000,
-    originalPrice: 310000,
-    discountPrice: 265000,
     isOnSale: true,
+    originalPrice: 320000,
+    price: 256000,
+    buyPrice: 256000,
+    discountPrice: 256000,
     rentPricePerDay: 0,
     rentPricePerWeek: 0,
     securityDeposit: 0,
@@ -537,18 +532,16 @@ const products = [
     nextAvailableDate: null,
     promo: {
       hasPromo: true,
-      badgeText: "Sale 14.5%",
-      discountPercent: 14,
+      badgeText: "Diskon 20%",
+      discountPercent: 20,
       promoType: "buy",
-      promoDescription: "Solusi anti-drift terbaik, harga promo terbatas!"
+      promoDescription: "Solusi anti-drift terbaik, harga promo!"
     },
     rentalTerms: [],
     rating: 4.9,
     reviewsCount: 112,
     reviews: [
-      { id: "rv-12-1", reviewer: "Gamer Anti Drift", avatar: "GA", rating: 5, date: "2026-07-22", comment: "Pasang GuliKit di DualSense, drift langsung hilang! Sudah 3 bulan tidak ada masalah. Teknologi Hall Effect memang beda level.", type: "buy" },
-      { id: "rv-12-2", reviewer: "Servis Controller", avatar: "SC", rating: 5, date: "2026-08-09", comment: "Sudah install 50+ unit pakai GuliKit ini. Zero complaint dari customer. Drop-in replacement yang mudah dipasang.", type: "buy" },
-      { id: "rv-12-3", reviewer: "Pro Gamer ID", avatar: "PG", rating: 5, date: "2026-08-30", comment: "Beli 2 set buat 2 controller PS5. Harga sale sangat worth. Respons lebih presisi dari stick original!", type: "buy" }
+      { id: "rv-12-1", reviewer: "Gamer Anti Drift", avatar: "GA", rating: 5, date: "2026-07-22", comment: "Pasang GuliKit di DualSense, drift langsung hilang total!", type: "buy" }
     ]
   },
   {
@@ -568,10 +561,11 @@ const products = [
     ],
     isRentable: false,
     isBuyable: true,
-    buyPrice: 95000,
-    originalPrice: 95000,
-    discountPrice: 95000,
     isOnSale: false,
+    originalPrice: 95000,
+    price: 95000,
+    buyPrice: 95000,
+    discountPrice: 95000,
     rentPricePerDay: 0,
     rentPricePerWeek: 0,
     securityDeposit: 0,
@@ -589,8 +583,7 @@ const products = [
     rating: 4.7,
     reviewsCount: 78,
     reviews: [
-      { id: "rv-13-1", reviewer: "Console Care", avatar: "CC", rating: 5, date: "2026-08-04", comment: "Kit lengkap untuk maintenance konsol. IPA 99%-nya bersih banget, cocok untuk PCB dan optik disc. Harga affordable.", type: "buy" },
-      { id: "rv-13-2", reviewer: "Bersih Optimal", avatar: "BO", rating: 4, date: "2026-08-21", comment: "Compressed air-nya powerful, dust langsung keluar dari ventilasi PS5. Microfiber tidak meninggalkan goresan.", type: "buy" }
+      { id: "rv-13-1", reviewer: "Console Care", avatar: "CC", rating: 5, date: "2026-08-04", comment: "Kit lengkap untuk maintenance konsol.", type: "buy" }
     ]
   },
   {
@@ -610,10 +603,11 @@ const products = [
     ],
     isRentable: false,
     isBuyable: true,
-    buyPrice: 320000,
-    originalPrice: 380000,
-    discountPrice: 320000,
     isOnSale: true,
+    originalPrice: 380000,
+    price: 304000,
+    buyPrice: 304000,
+    discountPrice: 304000,
     rentPricePerDay: 0,
     rentPricePerWeek: 0,
     securityDeposit: 0,
@@ -622,17 +616,16 @@ const products = [
     nextAvailableDate: null,
     promo: {
       hasPromo: true,
-      badgeText: "Sale 16%",
-      discountPercent: 16,
+      badgeText: "Diskon 20%",
+      discountPercent: 20,
       promoType: "buy",
-      promoDescription: "Harga terbaik PS5 fan replacement original Bisonic/NMB!"
+      promoDescription: "Harga terbaik PS5 fan replacement original!"
     },
     rentalTerms: [],
     rating: 4.8,
     reviewsCount: 53,
     reviews: [
-      { id: "rv-14-1", reviewer: "Teknisi PS5", avatar: "TP", rating: 5, date: "2026-08-07", comment: "Fan original Bisonic/NMB. Ganti fan PS5 customer pakai ini, hasilnya unit lebih senyap dan suhu drop signifikan.", type: "buy" },
-      { id: "rv-14-2", reviewer: "DIY PS5 Repair", avatar: "DP", rating: 5, date: "2026-08-24", comment: "Kompatibel sempurna dengan PS5 CFI-2000 (Slim). Pemasangan mudah, suara fan nyaris tidak terdengar.", type: "buy" }
+      { id: "rv-14-1", reviewer: "Teknisi PS5", avatar: "TP", rating: 5, date: "2026-08-07", comment: "Fan original Bisonic/NMB. Suara fan senyap.", type: "buy" }
     ]
   },
   {
@@ -652,10 +645,11 @@ const products = [
     ],
     isRentable: false,
     isBuyable: true,
-    buyPrice: 425000,
-    originalPrice: 500000,
-    discountPrice: 425000,
     isOnSale: true,
+    originalPrice: 500000,
+    price: 425000,
+    buyPrice: 425000,
+    discountPrice: 425000,
     rentPricePerDay: 0,
     rentPricePerWeek: 0,
     securityDeposit: 0,
@@ -664,17 +658,16 @@ const products = [
     nextAvailableDate: null,
     promo: {
       hasPromo: true,
-      badgeText: "Sale 15%",
+      badgeText: "Diskon 15%",
       discountPercent: 15,
       promoType: "buy",
-      promoDescription: "Upgrade controller PS5 Anda dengan 4 tombol tambahan, harga promo!"
+      promoDescription: "Upgrade controller PS5 dengan 4 tombol tambahan!"
     },
     rentalTerms: [],
     rating: 4.7,
     reviewsCount: 61,
     reviews: [
-      { id: "rv-15-1", reviewer: "Pro Player", avatar: "PP", rating: 5, date: "2026-08-13", comment: "Game changer buat competitive gaming! Paddle 4 tombol bikin crouch, jump, dan reload jauh lebih cepat. Tidak perlu solder sama sekali.", type: "buy" },
-      { id: "rv-15-2", reviewer: "FPS Master", avatar: "FM", rating: 4, date: "2026-09-02", comment: "Build quality solid. Harga promo worth banget. Satu-satunya kelemahan pasang awalnya agak tricky.", type: "buy" }
+      { id: "rv-15-1", reviewer: "Pro Player", avatar: "PP", rating: 5, date: "2026-08-13", comment: "Paddle 4 tombol bikin main game kompetitif jauh lebih responsif.", type: "buy" }
     ]
   },
   {
@@ -694,10 +687,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 1050000,
-    originalPrice: 1150000,
-    discountPrice: 1050000,
     isOnSale: true,
+    originalPrice: 1200000,
+    price: 1020000,
+    buyPrice: 1020000,
+    discountPrice: 1020000,
     rentPricePerDay: 25000,
     rentPricePerWeek: 145000,
     securityDeposit: 150000,
@@ -706,22 +700,19 @@ const products = [
     nextAvailableDate: "2026-09-10",
     promo: {
       hasPromo: true,
-      badgeText: "Sale 8.7%",
-      discountPercent: 9,
+      badgeText: "Diskon 15%",
+      discountPercent: 15,
       promoType: "buy",
-      promoDescription: "DualSense Midnight Black harga promo, garansi Sony resmi 1 tahun!"
+      promoDescription: "DualSense Midnight Black promo hemat 15%!"
     },
     rentalTerms: [
       "Deposit Rp 150.000 per controller",
-      "Laporkan kerusakan sebelum sewa berikutnya",
       "Sudah termasuk kabel USB-C untuk charging"
     ],
     rating: 4.9,
     reviewsCount: 178,
     reviews: [
-      { id: "rv-16-1", reviewer: "Gaming Addict", avatar: "GD", rating: 5, date: "2026-07-28", comment: "DualSense Midnight Black ini keren banget look-nya! Haptic feedback-nya next level, terasa beda banget saat main Returnal atau Astro's Playroom.", type: "buy" },
-      { id: "rv-16-2", reviewer: "Sewa Kontroller", avatar: "SL", rating: 5, date: "2026-08-16", comment: "Sewa sebagai controller tambahan buat multiplayer. Kondisi bersih dan terawat, grip masih bagus.", type: "rent" },
-      { id: "rv-16-3", reviewer: "Reviewer Pro", avatar: "RP", rating: 4, date: "2026-09-04", comment: "Beli karena harga promo. Kualitas sama dengan yang beli di store resmi, tapi lebih murah. Recommended!", type: "buy" }
+      { id: "rv-16-1", reviewer: "Gaming Addict", avatar: "GD", rating: 5, date: "2026-07-28", comment: "DualSense Midnight Black keren banget look-nya!", type: "buy" }
     ]
   },
   {
@@ -741,10 +732,11 @@ const products = [
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 7200000,
-    originalPrice: 8000000,
-    discountPrice: 7200000,
     isOnSale: true,
+    originalPrice: 8000000,
+    price: 6800000,
+    buyPrice: 6800000,
+    discountPrice: 6800000,
     rentPricePerDay: 95000,
     rentPricePerWeek: 560000,
     securityDeposit: 500000,
@@ -753,21 +745,19 @@ const products = [
     nextAvailableDate: "2026-09-14",
     promo: {
       hasPromo: true,
-      badgeText: "Sale 10%",
-      discountPercent: 10,
+      badgeText: "Diskon 15%",
+      discountPercent: 15,
       promoType: "buy",
-      promoDescription: "PS VR2 bundle Horizon hemat 10%, pengalaman VR terbaik di konsol!"
+      promoDescription: "PS VR2 bundle Horizon diskon 15%!"
     },
     rentalTerms: [
       "Deposit Rp 500.000 untuk headset + 2 controller VR2",
-      "Pembersihan lensa wajib sebelum dan sesudah sewa",
-      "Memerlukan PS5 (tidak termasuk dalam paket sewa VR)"
+      "Pembersihan lensa wajib sebelum dan sesudah sewa"
     ],
     rating: 4.7,
     reviewsCount: 94,
     reviews: [
-      { id: "rv-17-1", reviewer: "VR Enthusiast", avatar: "VE", rating: 5, date: "2026-08-02", comment: "Pengalaman VR terbaik di konsol! Eye tracking-nya akurat banget, tidak perlu kalibrasi berulang. Horizon CoE di VR itu amazing!", type: "rent" },
-      { id: "rv-17-2", reviewer: "Tech Reviewer ID", avatar: "TR", rating: 4, date: "2026-08-19", comment: "Beli untuk review konten. Kualitas layar OLED per mata unggul dari semua headset VR yang pernah aku coba. Harga promo worth it!", type: "buy" }
+      { id: "rv-17-1", reviewer: "VR Enthusiast", avatar: "VE", rating: 5, date: "2026-08-02", comment: "Pengalaman VR terbaik di konsol! Visual OLED HDR memukau.", type: "rent" }
     ]
   },
   {
@@ -782,15 +772,15 @@ const products = [
       "Konektivitas: Bluetooth 3.0 + USB-C Wired",
       "Baterai: Li-ion 40 jam (wired unlimited)",
       "Fitur: HD Rumble, NFC (amiibo), Gyroscope",
-      "Tombol: Standard face + shoulder + trigger + capture",
       "Kompatibel: Nintendo Switch (semua model)"
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 750000,
-    originalPrice: 750000,
-    discountPrice: 750000,
     isOnSale: false,
+    originalPrice: 750000,
+    price: 750000,
+    buyPrice: 750000,
+    discountPrice: 750000,
     rentPricePerDay: 20000,
     rentPricePerWeek: 115000,
     securityDeposit: 100000,
@@ -805,15 +795,12 @@ const products = [
       promoDescription: ""
     },
     rentalTerms: [
-      "Deposit Rp 100.000 per controller",
-      "Kembalikan dengan kabel USB-C bawaan",
-      "Laporkan jika ada tombol yang terasa tidak responsif"
+      "Deposit Rp 100.000 per controller"
     ],
     rating: 4.8,
     reviewsCount: 143,
     reviews: [
-      { id: "rv-18-1", reviewer: "Switch Gamer", avatar: "SG", rating: 5, date: "2026-08-06", comment: "Pro Controller jauh lebih nyaman dari Joy-Con buat gaming panjang. Baterai 40 jam itu real! NFC untuk amiibo works perfect.", type: "buy" },
-      { id: "rv-18-2", reviewer: "Family Gamer", avatar: "FG", rating: 5, date: "2026-08-23", comment: "Sewa sebagai controller tambahan buat main Mario Kart bersama keluarga. Kondisi mulus, tombol responsive semua.", type: "rent" }
+      { id: "rv-18-1", reviewer: "Switch Gamer", avatar: "SG", rating: 5, date: "2026-08-06", comment: "Pro Controller nyaman banget, baterai tahan 40 jam nyata.", type: "buy" }
     ]
   },
   {
@@ -827,16 +814,16 @@ const products = [
     specs: [
       "Platform: PlayStation 5 (Disc Edition)",
       "Genre: Action RPG, Mythology",
-      "Bahasa: Mandarin, Subtitle Indonesia tersedia",
-      "Mode: Single Player",
+      "Bahasa: Subtitle Indonesia & English",
       "Target Frame Rate: 4K/30fps Quality | 1440p/60fps Performance"
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 850000,
-    originalPrice: 950000,
-    discountPrice: 850000,
     isOnSale: true,
+    originalPrice: 950000,
+    price: 760000,
+    buyPrice: 760000,
+    discountPrice: 760000,
     rentPricePerDay: 25000,
     rentPricePerWeek: 145000,
     securityDeposit: 100000,
@@ -845,23 +832,19 @@ const products = [
     nextAvailableDate: "2026-09-13",
     promo: {
       hasPromo: true,
-      badgeText: "Sale 10.5%",
-      discountPercent: 10,
+      badgeText: "Diskon 20%",
+      discountPercent: 20,
       promoType: "buy",
-      promoDescription: "Black Myth: Wukong harga promo, game terlaris 2024!"
+      promoDescription: "Black Myth: Wukong diskon spesial 20%!"
     },
     rentalTerms: [
       "Deposit Rp 100.000 per keping game",
-      "Kembalikan disc dalam kondisi tidak tergores",
-      "Gunakan case penyimpanan saat tidak dipakai"
+      "Kembalikan disc dalam kondisi tidak tergores"
     ],
     rating: 4.9,
     reviewsCount: 289,
     reviews: [
-      { id: "rv-19-1", reviewer: "Action Gamer", avatar: "AG", rating: 5, date: "2026-08-05", comment: "MASTERPIECE! Visual PS5-nya jaw-dropping, boss fight-nya epic. Sewa dulu buat cobain, akhirnya beli karena mau play ulang. Wajib punya!", type: "rent" },
-      { id: "rv-19-2", reviewer: "Mythology Fan", avatar: "MF", rating: 5, date: "2026-08-12", comment: "Ceritanya keren banget, mitologi Cina yang diangkat sangat detail. Beli versi fisik karena mau koleksi. Harga promo sangat worth!", type: "buy" },
-      { id: "rv-19-3", reviewer: "PS5 Owner", avatar: "PO", rating: 5, date: "2026-08-25", comment: "Sewa 5 hari, habis main terus. Sulit berhenti! Disc dalam kondisi perfect. Definitif membeli setelah sewa.", type: "rent" },
-      { id: "rv-19-4", reviewer: "JRPG Lover", avatar: "JL", rating: 4, date: "2026-09-06", comment: "Bagus banget, tapi agak susah di awal karena kurang terbiasa gameplay-nya. Setelah paham, addictive banget!", type: "rent" }
+      { id: "rv-19-1", reviewer: "Action Gamer", avatar: "AG", rating: 5, date: "2026-08-05", comment: "MASTERPIECE! Visual jaw-dropping, boss fight-nya sangat seru.", type: "rent" }
     ]
   },
   {
@@ -875,16 +858,16 @@ const products = [
     specs: [
       "Platform: Nintendo Switch (semua model)",
       "Genre: Open World Action Adventure",
-      "Bahasa: Inggris, Jepang (subtitle Indonesia via unofficial patch)",
       "Mode: Single Player",
       "Ukuran: 18.2GB (cartridge)"
     ],
     isRentable: true,
     isBuyable: true,
-    buyPrice: 780000,
-    originalPrice: 780000,
-    discountPrice: 780000,
     isOnSale: false,
+    originalPrice: 780000,
+    price: 780000,
+    buyPrice: 780000,
+    discountPrice: 780000,
     rentPricePerDay: 22000,
     rentPricePerWeek: 130000,
     securityDeposit: 100000,
@@ -899,21 +882,16 @@ const products = [
       promoDescription: ""
     },
     rentalTerms: [
-      "Deposit Rp 100.000 per cartridge",
-      "Kembalikan cartridge dalam kondisi baik tanpa goresan di konektor",
-      "Save data akan dihapus setelah pengembalian (backup sendiri jika diperlukan)"
+      "Deposit Rp 100.000 per cartridge"
     ],
     rating: 4.9,
     reviewsCount: 312,
     reviews: [
-      { id: "rv-20-1", reviewer: "Zelda Fan", avatar: "ZF", rating: 5, date: "2026-07-18", comment: "Zelda TotK adalah masterpiece terbesar Nintendo. Mekanik Ultrahand bikin kreativitas nggak ada batasnya. GOTY 2023 yang sangat layak!", type: "buy" },
-      { id: "rv-20-2", reviewer: "Open World Fan", avatar: "OF", rating: 5, date: "2026-08-03", comment: "Sewa 7 hari tapi ternyata tidak cukup, langsung beli setelahnya! World-building dan gameplay loop-nya sempurna.", type: "rent" },
-      { id: "rv-20-3", reviewer: "Nintendo Fan", avatar: "NF", rating: 5, date: "2026-08-20", comment: "200+ jam dan masih banyak yang belum dijelajahi. Ini bukan sekedar game, ini karya seni interaktif.", type: "buy" },
-      { id: "rv-20-4", reviewer: "Casual Gamer", avatar: "CG", rating: 4, date: "2026-09-08", comment: "Bagus banget, tapi karena pertama kali main Zelda sedikit overwhelming dengan banyaknya pilihan. Tapi sangat seru!", type: "rent" }
+      { id: "rv-20-1", reviewer: "Zelda Fan", avatar: "ZF", rating: 5, date: "2026-07-18", comment: "Zelda TotK adalah masterpiece terbaik Nintendo. Gameplay tanpa batas!", type: "buy" }
     ]
   }
 ];
 
-// Expose ke window global (kompatibel dengan file:// protocol)
+// Expose ke window global
 window.CONSOLE_PRODUCTS = products;
 const productsData = products;
