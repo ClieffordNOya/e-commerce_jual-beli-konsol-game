@@ -412,23 +412,35 @@ function renderProducts() {
               </div>
             `}
 
-            ${p.isBuyable ? `
-              <div class="bg-teal-950/40 p-2.5 rounded-xl border border-teal-900/40 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  <span class="text-[10px] font-semibold text-teal-400 uppercase tracking-wider flex items-center gap-1">🛍️ Harga Beli</span>
-                  ${p.isOnSale && p.originalPrice && p.originalPrice > p.buyPrice ? `
-                    <span class="text-[9px] px-1.5 py-0.2 bg-rose-500/20 text-rose-300 font-bold rounded">DISKON</span>
-                  ` : ''}
+            ${p.isBuyable ? (() => {
+              const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
+              const origPrice = p.originalPrice || p.buyPrice;
+              const hasDiscount = p.isOnSale && origPrice > effectiveBuyPrice;
+              const discountPct = hasDiscount ? Math.round(((origPrice - effectiveBuyPrice) / origPrice) * 100) : 0;
+              return `
+                <div class="bg-teal-950/40 p-2.5 rounded-xl border ${hasDiscount ? 'border-rose-900/60 bg-rose-950/20' : 'border-teal-900/40'} flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-semibold ${hasDiscount ? 'text-rose-400' : 'text-teal-400'} uppercase tracking-wider flex items-center gap-1">
+                      ${hasDiscount ? '🔥 Promo Beli' : '🛍️ Harga Beli'}
+                    </span>
+                    ${hasDiscount ? `
+                      <span class="text-[9px] px-1.5 py-0.5 bg-rose-500/30 text-rose-300 font-extrabold rounded border border-rose-500/40">
+                        -${discountPct}%
+                      </span>
+                    ` : ''}
+                  </div>
+                  <div>
+                    ${hasDiscount ? `
+                      <span class="text-[11px] text-gray-400 line-through block leading-none mb-0.5">${formatRupiah(origPrice)}</span>
+                      <span class="text-rose-400 font-black text-base block">${formatRupiah(effectiveBuyPrice)}</span>
+                    ` : `
+                      <span class="text-teal-300 font-black text-base block">${formatRupiah(effectiveBuyPrice)}</span>
+                    `}
+                    <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
+                  </div>
                 </div>
-                <div>
-                  ${p.isOnSale && p.originalPrice && p.originalPrice > p.buyPrice ? `
-                    <span class="text-[10px] text-gray-500 line-through block leading-none mb-0.5">${formatRupiah(p.originalPrice)}</span>
-                  ` : ''}
-                  <span class="text-teal-300 font-black text-base block">${formatRupiah(p.buyPrice)}</span>
-                  <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
-                </div>
-              </div>
-            ` : `
+              `;
+            })() : `
               <div class="bg-slate-800/20 p-2.5 rounded-xl border border-slate-700/20 flex items-center justify-center text-center">
                 <span class="text-[11px] text-gray-500 font-medium">Tidak<br>Dijual</span>
               </div>
@@ -446,14 +458,18 @@ function renderProducts() {
                 <span class="text-[10px] font-normal opacity-80">${formatRupiah(p.rentPricePerDay)}/hari</span>
               </button>
             ` : ''}
-            ${p.isBuyable ? `
-              <button onclick="openProductDetail('${p.id}', 'buy')"
-                class="group/btn py-2.5 px-3 rounded-xl font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all duration-200
-                  bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-600/25 hover:shadow-teal-500/40 hover:scale-[1.02] border border-teal-500">
-                <span class="text-sm">🛍️ BELI</span>
-                <span class="text-[10px] font-normal opacity-80">${formatRupiah(p.buyPrice)}</span>
-              </button>
-            ` : ''}
+            ${p.isBuyable ? (() => {
+              const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
+              const hasDiscount = p.isOnSale && (p.originalPrice || p.buyPrice) > effectiveBuyPrice;
+              return `
+                <button onclick="openProductDetail('${p.id}', 'buy')"
+                  class="group/btn py-2.5 px-3 rounded-xl font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all duration-200
+                    ${hasDiscount ? 'bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 border-rose-500 shadow-rose-600/30' : 'bg-teal-600 hover:bg-teal-500 border-teal-500 shadow-teal-600/25'} text-white shadow-lg hover:shadow-xl hover:scale-[1.02] border">
+                  <span class="text-sm">${hasDiscount ? '🔥 BELI SALE' : '🛍️ BELI'}</span>
+                  <span class="text-[10px] font-normal opacity-90">${formatRupiah(effectiveBuyPrice)}</span>
+                </button>
+              `;
+            })() : ''}
           </div>
 
           <!-- Tombol Detail kecil -->
@@ -596,16 +612,52 @@ function renderModalContent() {
           </ul>
         </div>
 
-        <!-- Ulasan Pelanggan -->
-        <div class="space-y-2 pt-2 border-t border-slate-800/80">
+        <!-- Ulasan Pelanggan & Form Review -->
+        <div class="space-y-3 pt-3 border-t border-slate-800/80">
           <div class="flex items-center justify-between">
             <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⭐ Ulasan Pengguna</span>
+              <span>⭐ Ulasan & Rating</span>
               <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">★ ${p.rating} / 5.0</span>
             </h4>
-            <span class="text-[10px] text-gray-400">${p.reviews ? p.reviews.length : p.reviewsCount} review</span>
+            <span class="text-[10px] text-gray-400 font-semibold">${p.reviews ? p.reviews.length : p.reviewsCount} review</span>
           </div>
 
+          <!-- Form Input Ulasan Pembeli (Customer Review Form) -->
+          <div class="bg-slate-900/90 border border-indigo-900/40 rounded-2xl p-3.5 space-y-2.5 shadow-md">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1">
+                <span>✍️</span> Tulis Ulasan Anda
+              </span>
+              <!-- Rating Bintang Interaktif -->
+              <div class="flex items-center gap-1" id="interactive-star-rating" title="Klik bintang untuk menilai">
+                <button type="button" onclick="setModalReviewRating(1)" class="star-btn text-base text-amber-400 hover:scale-125 transition" id="star-btn-1">★</button>
+                <button type="button" onclick="setModalReviewRating(2)" class="star-btn text-base text-amber-400 hover:scale-125 transition" id="star-btn-2">★</button>
+                <button type="button" onclick="setModalReviewRating(3)" class="star-btn text-base text-amber-400 hover:scale-125 transition" id="star-btn-3">★</button>
+                <button type="button" onclick="setModalReviewRating(4)" class="star-btn text-base text-amber-400 hover:scale-125 transition" id="star-btn-4">★</button>
+                <button type="button" onclick="setModalReviewRating(5)" class="star-btn text-base text-amber-400 hover:scale-125 transition" id="star-btn-5">★</button>
+                <span class="text-[11px] font-bold text-amber-300 ml-1" id="modal-rating-score">5.0</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <input type="text" id="review-input-name" placeholder="Nama Anda (contoh: Kevin S.)" required
+                class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500">
+              <select id="review-input-type" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500">
+                <option value="buy">🛍️ Pengalaman Beli Unit</option>
+                <option value="rent">🗓️ Pengalaman Sewa</option>
+              </select>
+            </div>
+
+            <textarea id="review-input-comment" rows="2" placeholder="Bagikan ulasan Anda mengenai kondisi barang, respon toko, dan kepuasan..." required
+              class="w-full bg-slate-950 border border-slate-700/80 rounded-xl p-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"></textarea>
+
+            <button type="button" onclick="submitProductReview('${p.id}')"
+              class="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+              <span>Kirim Ulasan Pembeli</span> ➔
+            </button>
+          </div>
+
+          <!-- Daftar Ulasan Pelanggan -->
           <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
             ${(p.reviews && p.reviews.length > 0) ? p.reviews.map(r => `
               <div class="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-1 text-xs">
@@ -615,13 +667,13 @@ function renderModalContent() {
                     <span class="font-bold text-gray-200 text-[11px]">${r.reviewer}</span>
                     <span class="text-[9px] px-1.5 py-0.2 rounded font-semibold ${r.type === 'rent' ? 'bg-indigo-900/40 text-indigo-300 border border-indigo-700/40' : 'bg-teal-900/40 text-teal-300 border border-teal-700/40'}">${r.type === 'rent' ? 'Sewa' : 'Beli'}</span>
                   </div>
-                  <span class="text-amber-400 text-[11px]">★ ${r.rating}</span>
+                  <span class="text-amber-400 text-[11px] font-bold">★ ${r.rating}</span>
                 </div>
                 <p class="text-[11px] text-gray-300 leading-relaxed pl-8">${r.comment}</p>
                 <div class="text-[9px] text-gray-500 text-right">${r.date}</div>
               </div>
             `).join("") : `
-              <p class="text-xs text-gray-500 italic p-3 text-center">Belum ada ulasan tertulis.</p>
+              <p class="text-xs text-gray-500 italic p-3 text-center bg-slate-900/40 rounded-xl border border-slate-800">Belum ada ulasan tertulis. Jadilah pengulas pertama!</p>
             `}
           </div>
         </div>
@@ -632,17 +684,28 @@ function renderModalContent() {
       <div class="lg:col-span-7 space-y-5 flex flex-col justify-between">
         <div class="space-y-4">
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-xs font-semibold px-2.5 py-0.5 bg-indigo-900/50 text-indigo-300 rounded border border-indigo-700/50">
                 ${p.brand}
               </span>
               <span class="text-xs text-gray-400">• ${p.categoryLabel}</span>
+              ${(() => {
+                const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
+                const origPrice = p.originalPrice || p.buyPrice;
+                const hasDiscount = p.isOnSale && origPrice > effectiveBuyPrice;
+                const pct = hasDiscount ? Math.round(((origPrice - effectiveBuyPrice) / origPrice) * 100) : 0;
+                return hasDiscount ? `
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-gradient-to-r from-rose-600 to-red-500 text-white shadow-sm flex items-center gap-1">
+                    🔥 SALE -${pct}%
+                  </span>
+                ` : '';
+              })()}
             </div>
             <h2 class="text-xl md:text-2xl font-black text-gray-100 mt-1">${p.name}</h2>
             <div class="flex items-center gap-2 mt-1 text-xs text-amber-400">
               <span>★★★★★</span>
               <span class="text-gray-300 font-semibold">${p.rating} / 5.0</span>
-              <span class="text-gray-500">(${p.reviewsCount} Ulasan Pelanggan)</span>
+              <span class="text-gray-500">(${p.reviews ? p.reviews.length : p.reviewsCount} Ulasan Pelanggan)</span>
             </div>
           </div>
 
@@ -657,10 +720,23 @@ function renderModalContent() {
                 <span class="text-[10px] font-normal ${isRentActive ? 'text-indigo-200' : 'text-gray-500'}">Mulai ${formatRupiah(p.rentPricePerDay)}/hari</span>
               </button>
 
-              <button onclick="setModalMode('buy')" ${!p.isBuyable ? 'disabled' : ''} class="py-2.5 px-4 rounded-lg font-bold text-xs md:text-sm flex flex-col items-center gap-1 transition ${!isRentActive ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30' : 'text-gray-400 hover:text-white'} ${!p.isBuyable ? 'opacity-40 cursor-not-allowed' : ''}">
-                <span>🛍️ BELI UNIT (RETAIL)</span>
-                <span class="text-[10px] font-normal ${!isRentActive ? 'text-teal-200' : 'text-gray-500'}">${formatRupiah(p.buyPrice)}</span>
-              </button>
+              ${(() => {
+                const effectiveBuyPrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
+                const origPrice = p.originalPrice || p.buyPrice;
+                const hasDiscount = p.isOnSale && origPrice > effectiveBuyPrice;
+                return `
+                  <button onclick="setModalMode('buy')" ${!p.isBuyable ? 'disabled' : ''} class="py-2.5 px-4 rounded-lg font-bold text-xs md:text-sm flex flex-col items-center gap-1 transition ${!isRentActive ? (hasDiscount ? 'bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-lg shadow-rose-600/30' : 'bg-teal-600 text-white shadow-lg shadow-teal-600/30') : 'text-gray-400 hover:text-white'} ${!p.isBuyable ? 'opacity-40 cursor-not-allowed' : ''}">
+                    <span class="flex items-center gap-1">
+                      <span>🛍️ BELI UNIT</span>
+                      ${hasDiscount ? `<span class="text-[9px] bg-white text-rose-600 px-1.5 py-0.2 rounded font-black">DISKON</span>` : ''}
+                    </span>
+                    <span class="text-[10px] font-normal ${!isRentActive ? 'text-white' : 'text-gray-500'}">
+                      ${hasDiscount ? `<span class="line-through opacity-75 mr-1">${formatRupiah(origPrice)}</span>` : ''}
+                      <strong>${formatRupiah(effectiveBuyPrice)}</strong>
+                    </span>
+                  </button>
+                `;
+              })()}
             </div>
           </div>
 
@@ -706,7 +782,14 @@ function renderModalContent() {
           ` : `
             <!-- Bagian Kontrol Mode Beli -->
             <div class="bg-teal-950/30 border border-teal-800/40 p-4 rounded-2xl space-y-4">
-              <h4 class="text-xs font-bold text-teal-300 uppercase tracking-wider">Kuantitas & Paket Pembelian</h4>
+              <h4 class="text-xs font-bold text-teal-300 uppercase tracking-wider flex items-center justify-between">
+                <span>Kuantitas & Paket Pembelian</span>
+                ${(p.isOnSale && (p.originalPrice || p.buyPrice) > ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice)) ? `
+                  <span class="text-[10px] text-rose-300 bg-rose-950/60 px-2 py-0.5 rounded-lg border border-rose-800/50 font-bold">
+                    Potongan Diskon Aktif
+                  </span>
+                ` : ''}
+              </h4>
               <div class="flex items-center justify-between">
                 <div>
                   <span class="text-xs text-gray-300 block font-medium">Jumlah Unit:</span>
@@ -788,20 +871,39 @@ function renderModalPricingSummary() {
       </div>
     `;
   } else {
-    const subtotal = p.buyPrice * state.modalQuantity;
+    // Mode Beli: gunakan effectiveBuyPrice (harga diskon otomatis jika isOnSale)
+    const effectivePrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
+    const origPrice = p.originalPrice || p.buyPrice;
+    const hasDiscount = p.isOnSale && origPrice > effectivePrice;
+    const totalOriginal = origPrice * state.modalQuantity;
+    const totalPay = effectivePrice * state.modalQuantity;
+    const totalSavings = totalOriginal - totalPay;
+
     box.innerHTML = `
       <div class="space-y-1.5 text-xs">
         <div class="flex justify-between text-gray-400">
           <span>Harga Satuan:</span>
-          <span class="text-gray-200 font-semibold">${formatRupiah(p.buyPrice)}</span>
+          <div>
+            ${hasDiscount ? `<span class="line-through text-gray-500 text-[11px] mr-1.5">${formatRupiah(origPrice)}</span>` : ''}
+            <span class="${hasDiscount ? 'text-rose-400 font-black' : 'text-gray-200 font-semibold'}">${formatRupiah(effectivePrice)}</span>
+          </div>
         </div>
         <div class="flex justify-between text-gray-400">
           <span>Jumlah Pembelian:</span>
           <span class="text-gray-200 font-semibold">${state.modalQuantity} Unit</span>
         </div>
+        ${hasDiscount ? `
+          <div class="flex justify-between text-emerald-400 bg-emerald-950/30 p-2 rounded-lg border border-emerald-900/40">
+            <span>🎉 Hemat Diskon (${Math.round((totalSavings / totalOriginal) * 100)}%):</span>
+            <span class="font-bold">- ${formatRupiah(totalSavings)}</span>
+          </div>
+        ` : ''}
         <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-          <span class="text-xs text-gray-400">Total Harga:</span>
-          <span class="text-lg font-black text-teal-400">${formatRupiah(subtotal)}</span>
+          <div>
+            <span class="text-xs text-gray-400 block">Total Harga Pembelian:</span>
+            ${hasDiscount ? `<span class="text-[10px] text-emerald-400">Hemat ${formatRupiah(totalSavings)}</span>` : ''}
+          </div>
+          <span class="text-lg font-black ${hasDiscount ? 'text-rose-400' : 'text-teal-400'}">${formatRupiah(totalPay)}</span>
         </div>
       </div>
     `;
@@ -845,10 +947,15 @@ window.addModalItemToCart = function() {
       showToast(`${p.name} (Sewa ${state.modalRentDuration} Hari) ditambahkan ke keranjang!`, "success");
     }
   } else {
-    // Mode Buy
-    const buyPrice = p.buyPrice;
+    // Mode Buy — Otomatis menggunakan harga diskon jika isOnSale
+    const effectivePrice = (p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice;
+    const origPrice = p.originalPrice || p.buyPrice;
+    const isSale = !!p.isOnSale && origPrice > effectivePrice;
+
     if (existingIndex > -1) {
       state.cart[existingIndex].quantity += state.modalQuantity;
+      state.cart[existingIndex].buyPrice = effectivePrice;
+      state.cart[existingIndex].total = effectivePrice * state.cart[existingIndex].quantity;
       showToast(`Jumlah beli ${p.name} ditambah!`, "info");
     } else {
       state.cart.push({
@@ -859,10 +966,13 @@ window.addModalItemToCart = function() {
         category: p.category,
         mode: "buy",
         quantity: state.modalQuantity,
-        buyPrice: buyPrice,
-        total: buyPrice * state.modalQuantity
+        buyPrice: effectivePrice,
+        originalPrice: origPrice,
+        isOnSale: isSale,
+        savingsPerUnit: isSale ? (origPrice - effectivePrice) : 0,
+        total: effectivePrice * state.modalQuantity
       });
-      showToast(`${p.name} (${state.modalQuantity} unit) ditambahkan ke keranjang!`, "success");
+      showToast(`${p.name} (${state.modalQuantity} unit${isSale ? ' - Diskon' : ''}) ditambahkan ke keranjang!`, "success");
     }
   }
 
@@ -870,6 +980,7 @@ window.addModalItemToCart = function() {
   closeProductModal();
   openCartDrawer();
 };
+
 
 window.removeCartItem = function(cartItemId) {
   state.cart = state.cart.filter(item => item.cartItemId !== cartItemId);
@@ -892,6 +1003,7 @@ function calculateCartTotals() {
   let buySubtotal = 0;
   let securityDeposit = 0;
   let itemDiscounts = 0;
+  let totalSaleSavings = 0;
 
   state.cart.forEach(item => {
     if (item.mode === "rent") {
@@ -900,6 +1012,9 @@ function calculateCartTotals() {
       itemDiscounts += (item.discount || 0);
     } else {
       buySubtotal += (item.buyPrice * item.quantity);
+      if (item.isOnSale && item.originalPrice && item.originalPrice > item.buyPrice) {
+        totalSaleSavings += (item.originalPrice - item.buyPrice) * item.quantity;
+      }
     }
   });
 
@@ -928,7 +1043,7 @@ function calculateCartTotals() {
     }
   }
 
-  const totalDiscounts = itemDiscounts + voucherDiscount;
+  const totalDiscounts = itemDiscounts + voucherDiscount + totalSaleSavings;
   const finalToPay = Math.max(0, (grossTotal - voucherDiscount) + securityDeposit);
 
   return {
@@ -938,6 +1053,7 @@ function calculateCartTotals() {
     securityDeposit,
     itemDiscounts,
     voucherDiscount,
+    totalSaleSavings,
     totalDiscounts,
     totalToPay: finalToPay
   };
@@ -982,29 +1098,41 @@ function renderCartDrawer() {
     return;
   }
 
-  container.innerHTML = state.cart.map(item => `
-    <div class="flex items-center gap-3 p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
-      <img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-cover rounded-lg bg-slate-950 flex-shrink-0">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-1.5 mb-1">
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${item.mode === 'rent' ? 'bg-indigo-900/60 text-indigo-300 border border-indigo-700/50' : 'bg-teal-900/60 text-teal-300 border border-teal-700/50'}">
-            ${item.mode === 'rent' ? `Sewa ${item.rentDays} Hari` : 'Beli Unit'}
-          </span>
-          ${item.mode === 'rent' ? `<span class="text-[10px] text-gray-400">Mulai: ${item.startDate}</span>` : ''}
+  container.innerHTML = state.cart.map(item => {
+    const isBuyOnSale = item.mode === 'buy' && item.isOnSale && item.originalPrice && item.originalPrice > item.buyPrice;
+    const discountPct = isBuyOnSale ? Math.round(((item.originalPrice - item.buyPrice) / item.originalPrice) * 100) : 0;
+
+    return `
+      <div class="flex items-center gap-3 p-3 bg-slate-900/90 rounded-xl border ${isBuyOnSale ? 'border-rose-900/50' : 'border-slate-800'} text-xs">
+        <img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-cover rounded-lg bg-slate-950 flex-shrink-0">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${item.mode === 'rent' ? 'bg-indigo-900/60 text-indigo-300 border border-indigo-700/50' : 'bg-teal-900/60 text-teal-300 border border-teal-700/50'}">
+              ${item.mode === 'rent' ? `Sewa ${item.rentDays} Hari` : 'Beli Unit'}
+            </span>
+            ${item.mode === 'rent' ? `<span class="text-[10px] text-gray-400">Mulai: ${item.startDate}</span>` : ''}
+            ${isBuyOnSale ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-rose-600/30 text-rose-300 border border-rose-500/40">DISKON -${discountPct}%</span>` : ''}
+          </div>
+          <h4 class="font-bold text-gray-200 truncate">${item.name}</h4>
+          <div class="flex items-center justify-between mt-1 text-[11px]">
+            <div class="text-gray-400">
+              ${item.mode === 'rent'
+                ? `Sewa: ${formatRupiah(item.rentSubtotal)} + Dep: ${formatRupiah(item.securityDeposit)}`
+                : (isBuyOnSale
+                  ? `<span class="line-through text-gray-500 mr-1">${formatRupiah(item.originalPrice)}</span><span class="text-rose-400 font-bold">${formatRupiah(item.buyPrice)}</span> <span class="text-gray-400 font-medium">x ${item.quantity}</span>`
+                  : `${item.quantity} x ${formatRupiah(item.buyPrice)}`
+                )
+              }
+            </div>
+            <span class="font-bold ${isBuyOnSale ? 'text-rose-400' : 'text-indigo-300'}">${formatRupiah(item.total)}</span>
+          </div>
         </div>
-        <h4 class="font-bold text-gray-200 truncate">${item.name}</h4>
-        <div class="flex items-center justify-between mt-1 text-[11px]">
-          <span class="text-gray-400">
-            ${item.mode === 'rent' ? `Sewa: ${formatRupiah(item.rentSubtotal)} + Deposit: ${formatRupiah(item.securityDeposit)}` : `${item.quantity} x ${formatRupiah(item.buyPrice)}`}
-          </span>
-          <span class="font-bold text-indigo-300">${formatRupiah(item.total)}</span>
-        </div>
+        <button onclick="removeCartItem('${item.cartItemId}')" class="text-gray-500 hover:text-rose-400 p-1 transition" title="Hapus Item">
+          ✕
+        </button>
       </div>
-      <button onclick="removeCartItem('${item.cartItemId}')" class="text-gray-500 hover:text-rose-400 p-1 transition" title="Hapus Item">
-        ✕
-      </button>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   // Rincian & Kupon
   const totals = calculateCartTotals();
@@ -1039,6 +1167,12 @@ function renderCartDrawer() {
           <span class="text-gray-200 font-semibold">${formatRupiah(totals.buySubtotal)}</span>
         </div>
       ` : ''}
+      ${totals.totalSaleSavings > 0 ? `
+        <div class="flex justify-between text-rose-400 bg-rose-950/30 p-2 rounded-lg border border-rose-900/40 font-semibold">
+          <span>🎉 Hemat Promo Diskon Produk:</span>
+          <span>- ${formatRupiah(totals.totalSaleSavings)}</span>
+        </div>
+      ` : ''}
       ${totals.securityDeposit > 0 ? `
         <div class="flex justify-between text-amber-300">
           <span>Total Deposit Sewa (Refundable):</span>
@@ -1054,11 +1188,12 @@ function renderCartDrawer() {
       <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
         <div>
           <span class="text-xs text-gray-300 font-bold block">Total Akhir Bayar:</span>
-          <span class="text-[10px] text-gray-500">Termasuk pajak & biaya admin</span>
+          <span class="text-[10px] text-gray-500">Otomatis menggunakan harga diskon</span>
         </div>
         <span class="text-lg font-black text-indigo-400">${formatRupiah(totals.totalToPay)}</span>
       </div>
     </div>
+
 
     <button onclick="openCheckoutModal()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm rounded-xl shadow-xl shadow-indigo-600/30 transition flex items-center justify-center gap-2">
       <span>🔒 Lanjut ke Pembayaran Online</span>
@@ -1521,3 +1656,86 @@ function setupCountdownTimer() {
     timerDisplay.innerText = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }, 1000);
 }
+
+// ===== CUSTOMER REVIEW & RATING CONTROLLER =====
+let selectedReviewRating = 5;
+
+window.setModalReviewRating = function(rating) {
+  selectedReviewRating = rating;
+  const scoreDisplay = document.getElementById("modal-rating-score");
+  if (scoreDisplay) scoreDisplay.innerText = rating.toFixed(1);
+
+  for (let i = 1; i <= 5; i++) {
+    const starBtn = document.getElementById(`star-btn-${i}`);
+    if (starBtn) {
+      if (i <= rating) {
+        starBtn.className = "star-btn text-base text-amber-400 hover:scale-125 transition";
+      } else {
+        starBtn.className = "star-btn text-base text-gray-600 hover:scale-125 transition";
+      }
+    }
+  }
+};
+
+window.submitProductReview = function(productId) {
+  const nameInput = document.getElementById("review-input-name");
+  const commentInput = document.getElementById("review-input-comment");
+  const typeSelect = document.getElementById("review-input-type");
+
+  const name = nameInput ? nameInput.value.trim() : "";
+  const comment = commentInput ? commentInput.value.trim() : "";
+  const type = typeSelect ? typeSelect.value : "buy";
+
+  if (!name) {
+    showToast("Silakan masukkan nama Anda!", "warning");
+    if (nameInput) nameInput.focus();
+    return;
+  }
+
+  if (!comment) {
+    showToast("Silakan tulis ulasan atau komentar Anda!", "warning");
+    if (commentInput) commentInput.focus();
+    return;
+  }
+
+  const p = state.products.find(item => item.id === productId);
+  if (!p) return;
+
+  if (!Array.isArray(p.reviews)) {
+    p.reviews = [];
+  }
+
+  // Buat avatar inisial
+  const initials = name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "U";
+
+  const newReview = {
+    id: "rv-" + Date.now().toString().slice(-6),
+    reviewer: name,
+    avatar: initials,
+    rating: selectedReviewRating,
+    date: new Date().toISOString().split("T")[0],
+    comment: comment,
+    type: type
+  };
+
+  // Masukkan review baru di posisi paling atas
+  p.reviews.unshift(newReview);
+  p.reviewsCount = p.reviews.length;
+
+  // Hitung ulang rata-rata bintang rating
+  const totalStars = p.reviews.reduce((sum, r) => sum + r.rating, 0);
+  p.rating = Math.round((totalStars / p.reviews.length) * 10) / 10;
+
+  // Simpan ke localStorage agar permanen
+  try {
+    localStorage.setItem("CONSOLE_PRODUCTS_OVERRIDE", JSON.stringify(state.products));
+  } catch (e) {}
+  window.CONSOLE_PRODUCTS = state.products;
+
+  showToast("Ulasan Anda berhasil dikirim! Terima kasih atas feedback-nya.", "success");
+
+  // Re-render konten modal & katalog produk langsung
+  renderModalContent();
+  renderProducts();
+};
+
