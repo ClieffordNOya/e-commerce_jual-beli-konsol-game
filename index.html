@@ -29,7 +29,24 @@
     @media print {
       body * { visibility: hidden; }
       #invoice-modal, #invoice-modal * { visibility: visible; }
-      #invoice-modal { position: absolute; left:0; top:0; width:100%; background:white !important; color:black !important; }
+      #invoice-modal { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #0f172a !important; padding: 0 !important; margin: 0 !important; }
+      #invoice-modal .bg-slate-900,
+      #invoice-modal .bg-slate-950,
+      #invoice-modal .bg-slate-900\/60,
+      #invoice-modal .bg-slate-900\/80,
+      #invoice-modal .bg-slate-900\/90,
+      #invoice-modal .bg-indigo-950\/20,
+      #invoice-modal .bg-indigo-950\/40,
+      #invoice-modal .bg-indigo-950\/60 { background: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important; box-shadow: none !important; }
+      #invoice-modal .text-white,
+      #invoice-modal .text-gray-100,
+      #invoice-modal .text-gray-200,
+      #invoice-modal .text-gray-300 { color: #0f172a !important; }
+      #invoice-modal .text-gray-400,
+      #invoice-modal .text-gray-500 { color: #475569 !important; }
+      #invoice-modal .border-slate-800,
+      #invoice-modal .border-slate-700 { border-color: #e2e8f0 !important; }
+      .no-print { display: none !important; }
     }
   </style>
 </head>
@@ -413,11 +430,58 @@
             <p class="text-[11px] text-gray-400">Data Anda dilindungi enkripsi 256-bit.</p>
           </div>
           <div>
-            <label class="block text-gray-300 font-semibold mb-1">Alamat Pengiriman / Catatan Pengambilan *</label>
-            <textarea id="customer-address" rows="3" required placeholder="Alamat lengkap atau pilih 'Ambil Sendiri di Station Console Hub'" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:border-indigo-500 focus:outline-none"></textarea>
+            <label class="block text-gray-300 font-semibold mb-1">Alamat Lengkap Pengiriman *</label>
+            <textarea id="customer-address" rows="2" required placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan atau instruksi pengiriman" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:border-indigo-500 focus:outline-none"></textarea>
           </div>
-          <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/30 transition text-sm">
-            Lanjut ke Pembayaran Online ➔
+
+          <!-- 🚚 WIDGET KALKULATOR ONGKOS KIRIM & ESTIMASI WAKTU TIBA -->
+          <div class="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 space-y-3.5">
+            <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-800/80">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🚚</span>
+                <div>
+                  <h4 class="font-bold text-gray-200 text-xs uppercase tracking-wider">Kalkulator Ongkos Kirim & Estimasi Tiba</h4>
+                  <p class="text-[11px] text-gray-400">Pilih wilayah tujuan & opsi kurir (Instant, Sameday, Reguler)</p>
+                </div>
+              </div>
+              <span id="shipping-selected-badge" class="px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold rounded-full">
+                🚀 Instant (1 - 2 Jam)
+              </span>
+            </div>
+
+            <!-- Dropdown Kota / Wilayah -->
+            <div>
+              <label class="block text-gray-300 text-[11px] font-semibold mb-1">Pilih Wilayah / Kota Pengiriman:</label>
+              <select id="shipping-destination" onchange="onShippingDestinationChange(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                <option value="jabodetabek">📍 Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi)</option>
+                <option value="bandung">📍 Bandung Raya & Jawa Barat</option>
+                <option value="surabaya">📍 Surabaya, Sidoarjo, Malang & Jatim</option>
+                <option value="semarang">📍 Semarang, Solo, Yogyakarta & Jateng</option>
+                <option value="luar_jawa">📍 Luar Pulau Jawa (Sumatera, Bali, Kalimantan, Sulawesi, Papua)</option>
+              </select>
+            </div>
+
+            <!-- List Layanan Pengiriman (Mobile-Responsive Cards) -->
+            <div class="space-y-1.5">
+              <label class="block text-gray-300 text-[11px] font-semibold">Pilih Layanan Kurir:</label>
+              <div id="shipping-services-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <!-- Di-render dinamis oleh renderShippingServices() -->
+              </div>
+            </div>
+
+            <!-- Rincian Biaya Pengiriman Terpilih -->
+            <div id="shipping-summary-box" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px] flex items-center justify-between text-gray-300">
+              <!-- Info terupdate realtime -->
+            </div>
+          </div>
+
+          <!-- Ringkasan Checkout Live -->
+          <div id="checkout-order-summary-box" class="bg-indigo-950/20 p-3.5 rounded-xl border border-indigo-900/40 text-xs space-y-1.5">
+            <!-- Rincian subtotal + ongkir + deposit + voucher + totalToPay -->
+          </div>
+
+          <button type="submit" id="checkout-submit-btn" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/30 transition text-sm flex items-center justify-center gap-2">
+            <span>🔒 Lanjut ke Pembayaran Online ➔</span>
           </button>
         </form>
       </div>
@@ -471,7 +535,7 @@
 
   <!-- Invoice Modal -->
   <div id="invoice-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="relative w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 my-8 space-y-6">
+    <div class="relative w-full max-w-3xl bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 my-8 space-y-6">
       <div id="invoice-content"></div>
       <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row justify-end gap-3 no-print">
         <button onclick="printInvoice()" class="py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-2">

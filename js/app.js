@@ -49,6 +49,255 @@ try {
 const promoBannersData = window.CONSOLE_BANNERS || [];
 const couponsData = window.CONSOLE_COUPONS || [];
 
+// Master Konfigurasi Layanan Pengiriman & Estimasi Tiba (Instant, Sameday, Reguler)
+const SHIPPING_DESTINATIONS = {
+  jabodetabek: {
+    label: "Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi)",
+    services: [
+      {
+        id: "instant",
+        name: "Instant Delivery",
+        courier: "GoSend / GrabExpress",
+        eta: "1 - 2 Jam (Tiba Hari Ini)",
+        price: 35000,
+        icon: "🚀",
+        badge: "⚡ Paling Cepat",
+        badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+        description: "Kurir langsung mengantar pesanan ke alamat Anda saat ini juga."
+      },
+      {
+        id: "sameday",
+        name: "Sameday Service",
+        courier: "Anteraja / Paxel",
+        eta: "6 - 8 Jam (Sore/Malam Ini)",
+        price: 22000,
+        icon: "⚡",
+        badge: "✨ Populer",
+        badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+        description: "Tiba di hari yang sama untuk pemesanan sebelum jam 15.00."
+      },
+      {
+        id: "reguler",
+        name: "Reguler Delivery",
+        courier: "JNE YES / SiCepat",
+        eta: "1 - 2 Hari Kerja",
+        price: 12000,
+        icon: "📦",
+        badge: "💰 Hemat",
+        badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        description: "Packing kayu & bubble wrap anti-benturan dengan garansi kurir."
+      },
+      {
+        id: "pickup",
+        name: "Ambil di Rental Station",
+        courier: "Station Console Hub",
+        eta: "Siap Ambil (30 Menit)",
+        price: 0,
+        icon: "🏪",
+        badge: "GRATIS",
+        badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+        description: "Ambil langsung di rental hub kami tanpa antri & biaya ongkir."
+      }
+    ]
+  },
+  bandung: {
+    label: "Bandung Raya & Jawa Barat",
+    services: [
+      {
+        id: "instant",
+        name: "Instant Courier Bandung",
+        courier: "GoSend / GrabExpress",
+        eta: "2 - 3 Jam (Tiba Hari Ini)",
+        price: 40000,
+        icon: "🚀",
+        badge: "⚡ Instant",
+        badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+        description: "Pengiriman cepat area Bandung Raya dan sekitarnya."
+      },
+      {
+        id: "sameday",
+        name: "Sameday Intercity",
+        courier: "Paxel Bandung",
+        eta: "Sore Ini (8 Jam)",
+        price: 25000,
+        icon: "⚡",
+        badge: "✨ Cepat",
+        badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+        description: "Tiba di hari yang sama dengan handling aman."
+      },
+      {
+        id: "reguler",
+        name: "Reguler Delivery",
+        courier: "J&T / SiCepat Express",
+        eta: "1 - 2 Hari Kerja",
+        price: 14000,
+        icon: "📦",
+        badge: "💰 Hemat",
+        badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        description: "Ekspedisi bergaransi dengan proteksi penuh."
+      },
+      {
+        id: "pickup",
+        name: "Ambil di Station Bandung",
+        courier: "Mitra Hub Bandung",
+        eta: "Siap Ambil (1 Jam)",
+        price: 0,
+        icon: "🏪",
+        badge: "GRATIS",
+        badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+        description: "Pengambilan langsung di Station Mitra Bandung."
+      }
+    ]
+  },
+  surabaya: {
+    label: "Surabaya, Sidoarjo, Malang & Jatim",
+    services: [
+      {
+        id: "instant",
+        name: "Instant Delivery Surabaya",
+        courier: "GoSend / GrabExpress",
+        eta: "2 - 3 Jam (Hari Ini)",
+        price: 42000,
+        icon: "🚀",
+        badge: "⚡ Kilat",
+        badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+        description: "Layanan ekspres kurir area Surabaya, Sidoarjo & Malang."
+      },
+      {
+        id: "sameday",
+        name: "Sameday Paxel Jatim",
+        courier: "Paxel Surabaya",
+        eta: "Sore Ini (6 - 8 Jam)",
+        price: 28000,
+        icon: "⚡",
+        badge: "✨ Populer",
+        badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+        description: "Paxel Sameday aman berpendingin & terlindungi."
+      },
+      {
+        id: "reguler",
+        name: "Reguler Delivery",
+        courier: "JNE / J&T Express",
+        eta: "1 - 2 Hari Kerja",
+        price: 16000,
+        icon: "📦",
+        badge: "💰 Hemat",
+        badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        description: "Kargo aman dengan proteksi bubble wrap berlapis."
+      },
+      {
+        id: "pickup",
+        name: "Ambil di Station Surabaya",
+        courier: "Mitra Hub Surabaya",
+        eta: "Siap Ambil (1 Jam)",
+        price: 0,
+        icon: "🏪",
+        badge: "GRATIS",
+        badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+        description: "Ambil langsung di Hub Station Surabaya."
+      }
+    ]
+  },
+  semarang: {
+    label: "Semarang, Solo, Jogja & Jateng",
+    services: [
+      {
+        id: "instant",
+        name: "Instant Kurir Jateng",
+        courier: "GoSend / Grab Instant",
+        eta: "2 - 3 Jam (Hari Ini)",
+        price: 38000,
+        icon: "🚀",
+        badge: "⚡ Cepat",
+        badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+        description: "Kurir langsung mengantar ke lokasi Anda."
+      },
+      {
+        id: "sameday",
+        name: "Sameday Cargo Jateng",
+        courier: "Paxel Cargo",
+        eta: "Tiba Hari Ini (8 Jam)",
+        price: 26000,
+        icon: "⚡",
+        badge: "✨ Sameday",
+        badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+        description: "Tiba di hari yang sama untuk area Jawa Tengah & DIY."
+      },
+      {
+        id: "reguler",
+        name: "Reguler Delivery",
+        courier: "SiCepat / JNE",
+        eta: "1 - 2 Hari Kerja",
+        price: 15000,
+        icon: "📦",
+        badge: "💰 Hemat",
+        badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        description: "Pengiriman reguler dengan tracking realtime."
+      },
+      {
+        id: "pickup",
+        name: "Hub Station Jogja / Solo",
+        courier: "Console Hub Station",
+        eta: "Siap Ambil (1 Jam)",
+        price: 0,
+        icon: "🏪",
+        badge: "GRATIS",
+        badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+        description: "Ambil unit langsung di hub station terdekat."
+      }
+    ]
+  },
+  luar_jawa: {
+    label: "Luar Pulau Jawa (Antar Pulau)",
+    services: [
+      {
+        id: "instant",
+        name: "Express Air Freight",
+        courier: "Garuda Cargo / JNE YES Udara",
+        eta: "1 Hari (Besok Tiba)",
+        price: 65000,
+        icon: "🚀",
+        badge: "✈️ Udara Kilat",
+        badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+        description: "Prioritas jalur udara kilat tiba esok hari."
+      },
+      {
+        id: "sameday",
+        name: "Next Day Express",
+        courier: "TiKi ONS / SiCepat BEST",
+        eta: "1 - 2 Hari Kerja",
+        price: 45000,
+        icon: "⚡",
+        badge: "✨ Prioritas",
+        badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+        description: "Layanan prioritas cepat antar pulau terpercaya."
+      },
+      {
+        id: "reguler",
+        name: "Reguler Cargo Antar Pulau",
+        courier: "J&T Cargo / JNE Reguler",
+        eta: "2 - 4 Hari Kerja",
+        price: 25000,
+        icon: "📦",
+        badge: "💰 Hemat",
+        badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        description: "Packing kayu solid khusus anti-benturan pengiriman antar pulau."
+      },
+      {
+        id: "pickup",
+        name: "Ambil di Drop Point",
+        courier: "Kargo Station Hub",
+        eta: "1 - 2 Hari",
+        price: 15000,
+        icon: "🏪",
+        badge: "Drop Point",
+        badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+        description: "Ambil di counter kargo stasiun/bandara kota Anda."
+      }
+    ]
+  }
+};
+
 // State Aplikasi
 const state = {
   products: productsData,
@@ -68,7 +317,12 @@ const state = {
   modalRentDuration: 3,
   modalRentStartDate: new Date().toISOString().split("T")[0],
   modalQuantity: 1,
-  currentTransaction: null
+  currentTransaction: null,
+  // State Pengiriman & Estimasi
+  selectedDestination: "jabodetabek",
+  selectedShippingServiceId: "instant",
+  shippingCost: 35000,
+  shippingEstimate: "1 - 2 Jam (Tiba Hari Ini)"
 };
 
 
@@ -1098,7 +1352,8 @@ function calculateCartTotals() {
   }
 
   const totalDiscounts = itemDiscounts + voucherDiscount + totalSaleSavings;
-  const finalToPay = Math.max(0, (grossTotal - voucherDiscount) + securityDeposit);
+  const shippingCost = state.cart.length > 0 ? (state.shippingCost !== undefined ? state.shippingCost : 35000) : 0;
+  const finalToPay = Math.max(0, (grossTotal - voucherDiscount) + securityDeposit + shippingCost);
 
   return {
     rentSubtotal,
@@ -1109,6 +1364,7 @@ function calculateCartTotals() {
     voucherDiscount,
     totalSaleSavings,
     totalDiscounts,
+    shippingCost,
     totalToPay: finalToPay
   };
 }
@@ -1239,10 +1495,16 @@ function renderCartDrawer() {
           <span class="font-semibold">- ${formatRupiah(totals.voucherDiscount)}</span>
         </div>
       ` : ''}
+      <div class="flex justify-between text-gray-400">
+        <span>Estimasi Ongkos Kirim:</span>
+        <span class="${totals.shippingCost === 0 ? 'text-teal-400 font-bold' : 'text-gray-200 font-semibold'}">
+          ${totals.shippingCost === 0 ? 'GRATIS' : formatRupiah(totals.shippingCost)}
+        </span>
+      </div>
       <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
         <div>
           <span class="text-xs text-gray-300 font-bold block">Total Akhir Bayar:</span>
-          <span class="text-[10px] text-gray-500">Otomatis menggunakan harga diskon</span>
+          <span class="text-[10px] text-gray-500">Termasuk estimasi ongkir & jaminan</span>
         </div>
         <span class="text-lg font-black text-indigo-400">${formatRupiah(totals.totalToPay)}</span>
       </div>
@@ -1290,6 +1552,167 @@ window.removeCoupon = function() {
   showToast("Kupon promosi dilepas.", "info");
 };
 
+// Shipping Calculator & Service Helper Functions
+window.getAvailableShippingServices = function(destId) {
+  const dest = SHIPPING_DESTINATIONS[destId] || SHIPPING_DESTINATIONS.jabodetabek;
+  return dest.services;
+};
+
+window.getSelectedShippingService = function() {
+  const destId = state.selectedDestination || "jabodetabek";
+  const services = window.getAvailableShippingServices(destId);
+  return services.find(s => s.id === state.selectedShippingServiceId) || services[0];
+};
+
+window.onShippingDestinationChange = function(destId) {
+  state.selectedDestination = destId;
+  const services = window.getAvailableShippingServices(destId);
+  const match = services.find(s => s.id === state.selectedShippingServiceId);
+  state.selectedShippingServiceId = match ? match.id : services[0].id;
+
+  const current = window.getSelectedShippingService();
+  state.shippingCost = current.price;
+  state.shippingEstimate = current.eta;
+
+  window.renderShippingServices();
+  window.updateCheckoutSummaryUI();
+};
+
+window.selectShippingService = function(serviceId) {
+  state.selectedShippingServiceId = serviceId;
+  const current = window.getSelectedShippingService();
+  state.shippingCost = current.price;
+  state.shippingEstimate = current.eta;
+
+  window.renderShippingServices();
+  window.updateCheckoutSummaryUI();
+};
+
+window.renderShippingServices = function() {
+  const container = document.getElementById("shipping-services-list");
+  if (!container) return;
+
+  const destId = state.selectedDestination || "jabodetabek";
+  const services = window.getAvailableShippingServices(destId);
+
+  container.innerHTML = services.map(srv => {
+    const isSelected = srv.id === state.selectedShippingServiceId;
+    return `
+      <div onclick="selectShippingService('${srv.id}')"
+        class="p-3 sm:p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 ${
+          isSelected
+            ? 'bg-indigo-950/70 border-indigo-500 shadow-md shadow-indigo-600/20 ring-1 ring-indigo-500'
+            : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+        }">
+        <div class="mt-0.5 text-xl flex-shrink-0">${srv.icon}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 justify-between">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-xs sm:text-sm font-bold text-gray-100">${srv.name}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full border font-semibold ${srv.badgeColor}">
+                ${srv.badge}
+              </span>
+            </div>
+            <span class="text-xs sm:text-sm font-black ${srv.price === 0 ? 'text-teal-400' : 'text-indigo-300'}">
+              ${srv.price === 0 ? 'GRATIS' : formatRupiah(srv.price)}
+            </span>
+          </div>
+          <div class="text-[11px] text-gray-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>Kurir: <strong class="text-gray-300">${srv.courier}</strong></span>
+            <span>•</span>
+            <span class="text-amber-300 font-medium">⏱️ Estimasi: ${srv.eta}</span>
+          </div>
+          <p class="text-[10px] text-gray-500 mt-0.5">${srv.description}</p>
+        </div>
+        <div class="flex items-center self-center pl-1">
+          <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
+            isSelected ? 'border-indigo-400 bg-indigo-600 text-white font-bold' : 'border-slate-700 bg-slate-950 text-transparent'
+          }">✓</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const badgeElem = document.getElementById("shipping-selected-badge");
+  const summaryBox = document.getElementById("shipping-summary-box");
+  const current = window.getSelectedShippingService();
+
+  if (badgeElem && current) {
+    badgeElem.innerHTML = `${current.icon} ${current.name} (${current.eta})`;
+  }
+
+  if (summaryBox && current) {
+    summaryBox.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full text-xs">
+        <div>
+          <span class="text-gray-400">Layanan Dipilih: </span>
+          <strong class="text-indigo-300">${current.name} (${current.courier})</strong>
+        </div>
+        <div class="text-gray-400">
+          Estimasi Tiba: <strong class="text-amber-300 font-bold">${current.eta}</strong>
+          <span class="mx-1">•</span>
+          Ongkir: <strong class="${current.price === 0 ? 'text-teal-400' : 'text-indigo-400'}">${current.price === 0 ? 'GRATIS' : formatRupiah(current.price)}</strong>
+        </div>
+      </div>
+    `;
+  }
+};
+
+window.updateCheckoutSummaryUI = function() {
+  const totals = calculateCartTotals();
+  const summaryBox = document.getElementById("checkout-order-summary-box");
+  const payBtnAmount = document.getElementById("checkout-btn-pay-amount");
+  const current = window.getSelectedShippingService();
+
+  if (summaryBox) {
+    const rentItemsCount = state.cart.filter(i => i.mode === "rent").length;
+    const buyItemsCount = state.cart.filter(i => i.mode === "buy").length;
+
+    summaryBox.innerHTML = `
+      <div class="space-y-1.5 text-xs">
+        ${totals.rentSubtotal > 0 ? `
+          <div class="flex justify-between text-gray-400">
+            <span>Subtotal Sewa (${rentItemsCount} item):</span>
+            <span class="text-gray-200 font-semibold">${formatRupiah(totals.rentSubtotal)}</span>
+          </div>
+        ` : ''}
+        ${totals.buySubtotal > 0 ? `
+          <div class="flex justify-between text-gray-400">
+            <span>Subtotal Beli (${buyItemsCount} item):</span>
+            <span class="text-gray-200 font-semibold">${formatRupiah(totals.buySubtotal)}</span>
+          </div>
+        ` : ''}
+        ${totals.voucherDiscount > 0 ? `
+          <div class="flex justify-between text-emerald-400">
+            <span>Potongan Kupon Promo:</span>
+            <span class="font-bold">- ${formatRupiah(totals.voucherDiscount)}</span>
+          </div>
+        ` : ''}
+        ${totals.securityDeposit > 0 ? `
+          <div class="flex justify-between text-amber-300">
+            <span>Deposit Jaminan Sewa (100% Refundable):</span>
+            <span class="font-bold">${formatRupiah(totals.securityDeposit)}</span>
+          </div>
+        ` : ''}
+        <div class="flex justify-between text-gray-400">
+          <span>Ongkos Kirim (${current ? current.name : 'Standar'}):</span>
+          <span class="${totals.shippingCost === 0 ? 'text-teal-400 font-bold' : 'text-gray-200 font-semibold'}">
+            ${totals.shippingCost === 0 ? 'GRATIS' : formatRupiah(totals.shippingCost)}
+          </span>
+        </div>
+        <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-sm">
+          <span class="font-bold text-gray-100">Total Akhir Pembayaran:</span>
+          <span class="font-black text-indigo-400 text-base">${formatRupiah(totals.totalToPay)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (payBtnAmount) {
+    payBtnAmount.innerText = formatRupiah(totals.totalToPay);
+  }
+};
+
 // Checkout & Payment Gateway Flow
 window.openCheckoutModal = function() {
   if (state.cart.length === 0) {
@@ -1306,6 +1729,19 @@ window.openCheckoutModal = function() {
   // Reset tampilan step
   if (stepCustomer) stepCustomer.classList.remove("hidden");
   if (stepGateway) stepGateway.classList.add("hidden");
+
+  // Inisialisasi Pilihan Destinasi & Layanan Ongkir
+  state.selectedDestination = state.selectedDestination || "jabodetabek";
+  const destSelect = document.getElementById("shipping-destination");
+  if (destSelect) {
+    destSelect.value = state.selectedDestination;
+  }
+  const currentSrv = window.getSelectedShippingService();
+  state.shippingCost = currentSrv ? currentSrv.price : 35000;
+  state.shippingEstimate = currentSrv ? currentSrv.eta : "1 - 2 Jam (Tiba Hari Ini)";
+
+  window.renderShippingServices();
+  window.updateCheckoutSummaryUI();
 
   // Cek apakah ada barang sewa di keranjang (memerlukan syarat KTP)
   const hasRentItem = state.cart.some(it => it.mode === "rent");
@@ -1347,11 +1783,32 @@ window.proceedToPaymentGateway = async function(event) {
   const totals = calculateCartTotals();
   const customer = { name, phone, email, address, idNumber };
 
+  // Data Pengiriman & Nomor Resi AWB Pelacakan
+  const selectedShipping = window.getSelectedShippingService();
+  const awbPrefix = selectedShipping.id === 'instant' ? 'INST' : (selectedShipping.id === 'sameday' ? 'SMDY' : (selectedShipping.id === 'pickup' ? 'PCKP' : 'REGL'));
+  const trackingNumber = `${awbPrefix}-${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+  const shippingInfo = {
+    destinationId: state.selectedDestination,
+    destinationLabel: (SHIPPING_DESTINATIONS[state.selectedDestination] || {}).label || "Jabodetabek",
+    serviceId: selectedShipping.id,
+    serviceName: selectedShipping.name,
+    courier: selectedShipping.courier,
+    eta: selectedShipping.eta,
+    cost: selectedShipping.price,
+    trackingNumber: trackingNumber,
+    statusText: selectedShipping.id === 'pickup' ? "Menunggu Verifikasi & Pengambilan di Station" : "Sedang Dipersiapkan & Quality Check",
+    currentStep: 2,
+    orderDate: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+    orderTime: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) + " WIB"
+  };
+
   // Menyiapkan Payload
   const payload = {
     items: state.cart,
     customer,
     pricing: totals,
+    shipping: shippingInfo,
     orderType: hasRentItem ? "rental_hybrid" : "retail"
   };
 
@@ -1381,6 +1838,7 @@ window.proceedToPaymentGateway = async function(event) {
       status: "pending",
       pricing: totals,
       customer,
+      shipping: shippingInfo,
       paymentMethods: {
         qris: {
           name: "QRIS Realtime",
@@ -1395,6 +1853,11 @@ window.proceedToPaymentGateway = async function(event) {
       },
       expiredAt: new Date(Date.now() + 15 * 60 * 1000).toISOString()
     };
+  }
+
+  // Pastikan shipping tersimpan pada transactionResult
+  if (!transactionResult.shipping) {
+    transactionResult.shipping = shippingInfo;
   }
 
   state.currentTransaction = transactionResult;
@@ -1464,127 +1927,404 @@ window.simulatePaymentSuccess = function() {
 };
 
 
-// Modal Invoice / Bukti Pembayaran Resmi
+// Modal Post-Purchase Experience: Invoice Digital + Tracking Pesanan + Garansi Sewa
 function openInvoiceModal(tx, items) {
   const modal = document.getElementById("invoice-modal");
   const container = document.getElementById("invoice-content");
   if (!modal || !container) return;
 
   const hasRent = items.some(it => it.mode === "rent");
+  const hasBuy = items.some(it => it.mode === "buy");
+  const shipping = tx.shipping || {
+    serviceName: "Instant Delivery",
+    courier: "GoSend Express",
+    eta: "1 - 2 Jam (Tiba Hari Ini)",
+    cost: 35000,
+    trackingNumber: "INST-" + Math.floor(100000000 + Math.random() * 900000000),
+    statusText: "Sedang Dipersiapkan & Quality Check",
+    currentStep: 2
+  };
+
+  const invoiceDate = tx.paidAt || new Date().toLocaleString("id-ID");
 
   container.innerHTML = `
     <div class="space-y-6">
-      <!-- Header Invoice -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-slate-800">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-2xl font-black tracking-wider text-indigo-400">CONSOLE HUB</span>
-            <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-full">LUNAS / PAID</span>
+      
+      <!-- 1. POST-PURCHASE HERO BANNER -->
+      <div class="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-indigo-950/60 p-5 sm:p-6 rounded-2xl border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl text-emerald-400 flex-shrink-0 shadow-lg shadow-emerald-500/10">
+            ✓
           </div>
-          <p class="text-xs text-gray-400 mt-1">E-Commerce & Rental Game Konsol Terpercaya</p>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="brand-font text-lg sm:text-xl font-black text-white">Pembayaran Lunas & Terverifikasi</h3>
+              <span class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black rounded-full uppercase tracking-wider">
+                PAID INSTANT
+              </span>
+            </div>
+            <p class="text-xs text-gray-300 mt-1">
+              Terima kasih, pesanan Anda <strong class="text-indigo-400 font-mono">#${tx.orderId}</strong> sudah masuk ke antrean teknisi kami.
+            </p>
+          </div>
         </div>
-        <div class="text-left sm:text-right text-xs text-gray-400 space-y-1">
-          <p>No. Transaksi: <strong class="text-gray-200 font-mono">${tx.orderId}</strong></p>
-          <p>Waktu Bayar: <span class="text-gray-300">${tx.paidAt || new Date().toLocaleString("id-ID")}</span></p>
-          <p>Metode: <span class="text-indigo-300 font-semibold">Payment Gateway (Instant Settlement)</span></p>
+        <div class="flex items-center gap-2 self-stretch sm:self-auto no-print">
+          <button onclick="printInvoice()" class="flex-1 sm:flex-none py-2 px-3.5 bg-slate-800 hover:bg-slate-700 text-gray-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+            🖨️ Cetak / PDF
+          </button>
         </div>
       </div>
 
-      <!-- Info Pelanggan & Alamat -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <div>
-          <h4 class="text-indigo-400 font-bold uppercase mb-2">Informasi Pemesan</h4>
-          <p class="text-gray-200 font-bold">${tx.customer.name}</p>
-          <p class="text-gray-400">WhatsApp: ${tx.customer.phone}</p>
-          <p class="text-gray-400">Email: ${tx.customer.email}</p>
-          ${tx.customer.idNumber && tx.customer.idNumber !== "-" ? `
-            <p class="text-gray-400">No. Identitas KTP: ${tx.customer.idNumber}</p>
+      <!-- 2. WIDGET PELACAKAN STATUS PESANAN (ORDER TRACKING WIDGET) -->
+      <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg">📦</span>
+              <h4 class="font-bold text-gray-100 text-sm">Pelacakan Pesanan & Status Pengiriman</h4>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-0.5">Pantau perjalanan paket unit konsol Anda secara realtime</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400">No. Resi / AWB:</span>
+            <div class="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-700">
+              <span class="font-mono text-xs font-bold text-indigo-300 tracking-wider">${shipping.trackingNumber}</span>
+              <button onclick="copyToClipboard('${shipping.trackingNumber}', 'Nomor Resi AWB')" class="text-gray-400 hover:text-white text-xs pl-1 no-print" title="Salin Nomor Resi">
+                📋
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Kurir & Estimasi -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-3 bg-slate-950/70 rounded-xl border border-slate-800">
+            <span class="text-gray-500 block text-[10px] uppercase font-bold">Layanan Kurir</span>
+            <span class="font-bold text-gray-200 mt-0.5 block">${shipping.serviceName}</span>
+            <span class="text-[11px] text-gray-400">${shipping.courier}</span>
+          </div>
+          <div class="p-3 bg-slate-950/70 rounded-xl border border-slate-800">
+            <span class="text-gray-500 block text-[10px] uppercase font-bold">Estimasi Tiba</span>
+            <span class="font-bold text-amber-300 mt-0.5 block flex items-center gap-1">
+              ⏱️ ${shipping.eta}
+            </span>
+            <span class="text-[10px] text-gray-400">Pengiriman Prioritas Terlindungi</span>
+          </div>
+          <div class="p-3 bg-slate-950/70 rounded-xl border border-slate-800">
+            <span class="text-gray-500 block text-[10px] uppercase font-bold">Status Saat Ini</span>
+            <span class="font-bold text-emerald-400 mt-0.5 block flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              ${shipping.statusText}
+            </span>
+            <span class="text-[10px] text-gray-400">Diperbarui: ${new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB</span>
+          </div>
+        </div>
+
+        <!-- Visual Step Timeline Tracker -->
+        <div class="pt-2">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+            
+            <!-- Step 1 -->
+            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/40 relative">
+              <div class="flex items-center justify-between mb-1">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 text-xs font-black flex items-center justify-center">✓</span>
+                <span class="text-[10px] text-emerald-300 font-mono font-bold">SELESAI</span>
+              </div>
+              <h5 class="text-xs font-bold text-gray-100">1. Pembayaran</h5>
+              <p class="text-[10px] text-gray-400 mt-0.5">Lunas via Instant Payment Gateway</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="p-3 bg-indigo-950/40 rounded-xl border border-indigo-500 relative ring-1 ring-indigo-500/50">
+              <div class="flex items-center justify-between mb-1">
+                <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-black flex items-center justify-center animate-pulse">2</span>
+                <span class="text-[10px] text-indigo-300 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span> AKTIF
+                </span>
+              </div>
+              <h5 class="text-xs font-bold text-indigo-200">2. QC & Packing</h5>
+              <p class="text-[10px] text-gray-300 mt-0.5">Uji 15-Point Diagnostik & Segel Garansi</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="p-3 bg-slate-950/40 rounded-xl border border-slate-800 opacity-60">
+              <div class="flex items-center justify-between mb-1">
+                <span class="w-6 h-6 rounded-full bg-slate-800 text-gray-400 text-xs font-bold flex items-center justify-center">3</span>
+                <span class="text-[10px] text-gray-500 font-medium">Antrean</span>
+              </div>
+              <h5 class="text-xs font-bold text-gray-300">3. Penjemputan Kurir</h5>
+              <p class="text-[10px] text-gray-500 mt-0.5">Serah terima ke ${shipping.courier}</p>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="p-3 bg-slate-950/40 rounded-xl border border-slate-800 opacity-60">
+              <div class="flex items-center justify-between mb-1">
+                <span class="w-6 h-6 rounded-full bg-slate-800 text-gray-400 text-xs font-bold flex items-center justify-center">4</span>
+                <span class="text-[10px] text-gray-500 font-medium">Tujuan</span>
+              </div>
+              <h5 class="text-xs font-bold text-gray-300">4. Tiba di Alamat</h5>
+              <p class="text-[10px] text-gray-500 mt-0.5">Konfirmasi unboxing & play</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Status Log -->
+        <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800/80 text-[11px] space-y-1.5 text-gray-400">
+          <div class="flex items-start gap-2">
+            <span class="text-emerald-400">●</span>
+            <div><strong class="text-gray-200">${invoiceDate}:</strong> Pembayaran terverifikasi lunas. Sistem otomatis menerbitkan faktur digital dan proteksi garansi.</div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-indigo-400">●</span>
+            <div><strong class="text-gray-200">Proses Berjalan:</strong> Teknisi Console Hub menyiapkan unit, memasang segel garansi resmi, dan mengemas dengan bubble wrap tebal + hard-box anti-benturan.</div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-amber-400">●</span>
+            <div><strong class="text-gray-200">Instruksi Kurir:</strong> Kurir <span class="text-amber-300 font-semibold">${shipping.courier}</span> dijadwalkan pickup menuju alamat penerima.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. WIDGET GARANSI & PROTEKSI SEWA / PEMBELIAN -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🛡️</span>
+          <h4 class="font-bold text-gray-100 text-sm">Status Garansi & Proteksi Konsol Anda</h4>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          ${hasRent ? `
+            <!-- Kartu Proteksi Sewa -->
+            <div class="p-4 bg-gradient-to-br from-indigo-950/50 to-slate-900 rounded-2xl border border-indigo-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-indigo-300 flex items-center gap-1.5">
+                  🔐 Escrow Deposit Terlindungi
+                </span>
+                <span class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded font-bold text-[10px]">
+                  100% REFUNDABLE
+                </span>
+              </div>
+              <p class="text-gray-300 text-[11px] leading-relaxed">
+                Deposit jaminan sebesar <strong class="text-amber-300 font-bold">${formatRupiah(tx.pricing.securityDeposit)}</strong> tersimpan aman di akun Escrow Console Hub. Dana akan ditransfer kembali secara otomatis 1x24 jam setelah unit dikembalikan utuh.
+              </p>
+              <div class="pt-2 border-t border-indigo-900/50 flex items-center justify-between text-[10px] text-gray-400">
+                <span>Status Deposit: <strong class="text-emerald-400">Aktif & Terjamin</strong></span>
+                <span>ID Deposit: <code class="text-gray-300">DEP-${tx.orderId.slice(-6)}</code></span>
+              </div>
+            </div>
+
+            <div class="p-4 bg-gradient-to-br from-amber-950/30 to-slate-900 rounded-2xl border border-amber-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-amber-300 flex items-center gap-1.5">
+                  ⚡ Garansi Tukar Unit 1x24 Jam
+                </span>
+                <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded font-bold text-[10px]">
+                  FREE SWAP
+                </span>
+              </div>
+              <p class="text-gray-300 text-[11px] leading-relaxed">
+                Jika terdapat kendala analog drift pada stik controller, overheating, atau error sistem selama masa sewa, teknisi kami siap mengantar unit pengganti kilat tanpa biaya sewa tambahan.
+              </p>
+              <div class="pt-2 border-t border-amber-900/50 flex items-center justify-between text-[10px] text-gray-400">
+                <span>Layanan Bantuan: <strong class="text-amber-300">WhatsApp Hotline 24/7</strong></span>
+                <span>Respon: &lt; 15 Menit</span>
+              </div>
+            </div>
+          ` : ''}
+
+          ${hasBuy ? `
+            <!-- Kartu Garansi Beli Unit -->
+            <div class="p-4 bg-gradient-to-br from-teal-950/40 to-slate-900 rounded-2xl border border-teal-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-teal-300 flex items-center gap-1.5">
+                  🏅 Garansi Resmi 1 Tahun Console Hub
+                </span>
+                <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 rounded font-bold text-[10px]">
+                  FULL COVERAGE
+                </span>
+              </div>
+              <p class="text-gray-300 text-[11px] leading-relaxed">
+                Unit konsol yang Anda beli dilindungi sertifikat garansi resmi mencakup sparepart mesin, perbaikan motherboard, servis port HDMI, dan gratis konsultasi teknisi.
+              </p>
+              <div class="pt-2 border-t border-teal-900/50 flex items-center justify-between text-[10px] text-gray-400">
+                <span>No. Polis: <code class="text-teal-300">WAR-${tx.orderId.slice(-6)}</code></span>
+                <span>Masa Berlaku: 365 Hari</span>
+              </div>
+            </div>
+
+            <div class="p-4 bg-gradient-to-br from-slate-900 to-indigo-950/40 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-gray-200 flex items-center gap-1.5">
+                  🔄 Garansi Ganti Baru 14 Hari
+                </span>
+                <span class="px-2 py-0.5 bg-slate-800 text-gray-300 rounded font-bold text-[10px]">
+                  REPLACEMENT
+                </span>
+              </div>
+              <p class="text-gray-300 text-[11px] leading-relaxed">
+                Garansi unboxing 14 hari: Jika terjadi cacat produksi dari pabrikan, kami langsung mengganti dengan unit konsol baru 100% tanpa proses klaim berbelit.
+              </p>
+              <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-gray-400">
+                <span>Syarat: Video unboxing saat paket diterima</span>
+              </div>
+            </div>
           ` : ''}
         </div>
-        <div>
-          <h4 class="text-indigo-400 font-bold uppercase mb-2">Alamat & Pengiriman</h4>
-          <p class="text-gray-300">${tx.customer.address || "Ambil Langsung di Rental Station"}</p>
-          <p class="text-gray-500 text-[11px] mt-1">Status: Siap dipacking / disiapkan teknisi</p>
-        </div>
       </div>
 
-      <!-- Tabel Produk -->
-      <div class="space-y-2">
-        <h4 class="text-xs font-bold text-gray-300 uppercase">Daftar Item Pesanan</h4>
-        <div class="overflow-x-auto">
-          <table class="w-full text-xs text-left">
-            <thead class="text-gray-400 bg-slate-900 border-b border-slate-800">
-              <tr>
-                <th class="py-2.5 px-3">Produk</th>
-                <th class="py-2.5 px-3">Tipe</th>
-                <th class="py-2.5 px-3">Durasi / Qty</th>
-                <th class="py-2.5 px-3 text-right">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800">
-              ${items.map(item => `
+      <!-- 4. DOKUMEN INVOICE DIGITAL RESMI (DIGITAL INVOICE) -->
+      <div class="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 space-y-5">
+        <!-- Header Invoice Baris -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl font-black tracking-wider text-indigo-400">CONSOLE HUB</span>
+              <span class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-full">
+                FAKTUR RESMI LUNAS
+              </span>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Platform Resmi Jual-Beli & Rental Game Console Indonesia</p>
+          </div>
+          <div class="text-left sm:text-right text-xs text-gray-400 space-y-0.5">
+            <p>No. Invoice: <strong class="text-gray-100 font-mono text-sm">${tx.orderId}</strong></p>
+            <p>Tanggal Transaksi: <span class="text-gray-300">${invoiceDate}</span></p>
+            <p>Metode Pembayaran: <span class="text-emerald-400 font-bold">Payment Gateway (Instant Verified)</span></p>
+          </div>
+        </div>
+
+        <!-- Info Pemesan & Alamat -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div>
+            <h4 class="text-indigo-400 font-bold uppercase mb-2 flex items-center gap-1.5">
+              👤 Data Pemesan
+            </h4>
+            <p class="text-gray-100 font-bold text-sm">${tx.customer.name}</p>
+            <p class="text-gray-300 mt-0.5">WhatsApp: <span class="font-mono text-gray-200">${tx.customer.phone}</span></p>
+            <p class="text-gray-400">Email: ${tx.customer.email}</p>
+            ${tx.customer.idNumber && tx.customer.idNumber !== "-" ? `
+              <p class="text-amber-300/90 mt-1 font-mono">No. KTP/SIM: ${tx.customer.idNumber}</p>
+            ` : ''}
+          </div>
+          <div>
+            <h4 class="text-indigo-400 font-bold uppercase mb-2 flex items-center gap-1.5">
+              📍 Alamat Pengiriman & Kurir
+            </h4>
+            <p class="text-gray-200 font-medium leading-relaxed">${tx.customer.address || "Ambil Langsung di Hub Rental Station"}</p>
+            <div class="mt-2 pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-1 text-[11px]">
+              <span class="text-gray-400">Kurir: <strong class="text-gray-200">${shipping.courier}</strong></span>
+              <span class="text-amber-300 font-bold">⏱️ Tiba: ${shipping.eta}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabel Item Pesanan -->
+        <div class="space-y-2">
+          <h4 class="text-xs font-bold text-gray-300 uppercase tracking-wider">Rincian Barang Yang Dipesan</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-xs text-left">
+              <thead class="text-gray-400 bg-slate-950 border-b border-slate-800">
                 <tr>
-                  <td class="py-3 px-3 font-semibold text-gray-200">
-                    ${item.name}
-                    ${item.mode === 'rent' ? `<span class="block text-[10px] text-gray-400 font-normal">Mulai sewa: ${item.startDate}</span>` : ''}
-                  </td>
-                  <td class="py-3 px-3">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.mode === 'rent' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' : 'bg-teal-950 text-teal-300 border border-teal-800'}">
-                      ${item.mode === 'rent' ? 'Sewa' : 'Beli'}
-                    </span>
-                  </td>
-                  <td class="py-3 px-3 text-gray-300">
-                    ${item.mode === 'rent' ? `${item.rentDays} Hari` : `${item.quantity} Unit`}
-                  </td>
-                  <td class="py-3 px-3 text-right font-bold text-gray-200">
-                    ${formatRupiah(item.mode === 'rent' ? item.rentSubtotal : item.buyPrice * item.quantity)}
-                  </td>
+                  <th class="py-2.5 px-3">Produk</th>
+                  <th class="py-2.5 px-3">Tipe Transaksi</th>
+                  <th class="py-2.5 px-3">Durasi / Qty</th>
+                  <th class="py-2.5 px-3 text-right">Subtotal</th>
                 </tr>
-              `).join("")}
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="divide-y divide-slate-800 bg-slate-900/50">
+                ${items.map(item => `
+                  <tr>
+                    <td class="py-3 px-3">
+                      <div class="font-bold text-gray-100">${item.name}</div>
+                      ${item.mode === 'rent' ? `
+                        <div class="text-[10px] text-indigo-300 mt-0.5">
+                          📅 Tanggal Mulai: ${item.startDate} (${item.rentDays} Hari)
+                        </div>
+                      ` : `
+                        <div class="text-[10px] text-gray-400 mt-0.5">
+                          📦 Unit Ritel Bersegel Resmi
+                        </div>
+                      `}
+                    </td>
+                    <td class="py-3 px-3">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.mode === 'rent' ? 'bg-indigo-950 text-indigo-300 border border-indigo-800' : 'bg-teal-950 text-teal-300 border border-teal-800'}">
+                        ${item.mode === 'rent' ? 'SEWA' : 'BELI'}
+                      </span>
+                    </td>
+                    <td class="py-3 px-3 text-gray-300 font-mono">
+                      ${item.mode === 'rent' ? `${item.rentDays} Hari` : `${item.quantity} Unit`}
+                    </td>
+                    <td class="py-3 px-3 text-right font-bold text-gray-100">
+                      ${formatRupiah(item.mode === 'rent' ? item.rentSubtotal : item.buyPrice * item.quantity)}
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Rincian Biaya & Total Pelunasan -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+          ${tx.pricing.rentSubtotal > 0 ? `
+            <div class="flex justify-between text-gray-400">
+              <span>Subtotal Biaya Sewa:</span>
+              <span class="text-gray-200 font-semibold">${formatRupiah(tx.pricing.rentSubtotal)}</span>
+            </div>
+          ` : ''}
+          ${tx.pricing.buySubtotal > 0 ? `
+            <div class="flex justify-between text-gray-400">
+              <span>Subtotal Pembelian Unit:</span>
+              <span class="text-gray-200 font-semibold">${formatRupiah(tx.pricing.buySubtotal)}</span>
+            </div>
+          ` : ''}
+          <div class="flex justify-between text-gray-400">
+            <span>Ongkos Kirim (${shipping.serviceName} - ${shipping.courier}):</span>
+            <span class="${shipping.cost === 0 ? 'text-teal-400 font-bold' : 'text-gray-200 font-semibold'}">
+              ${shipping.cost === 0 ? 'GRATIS' : formatRupiah(shipping.cost)}
+            </span>
+          </div>
+          ${tx.pricing.securityDeposit > 0 ? `
+            <div class="flex justify-between text-amber-300">
+              <span>Deposit Jaminan Sewa (100% Refundable):</span>
+              <span class="font-bold">${formatRupiah(tx.pricing.securityDeposit)}</span>
+            </div>
+          ` : ''}
+          ${tx.pricing.discount > 0 || (tx.pricing.voucherDiscount && tx.pricing.voucherDiscount > 0) ? `
+            <div class="flex justify-between text-emerald-400">
+              <span>Potongan Diskon Kupon:</span>
+              <span class="font-bold">- ${formatRupiah(tx.pricing.voucherDiscount || tx.pricing.discount)}</span>
+            </div>
+          ` : ''}
+          <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-sm">
+            <div>
+              <span class="font-bold text-gray-100 block">Total Pembayaran Lunas:</span>
+              <span class="text-[10px] text-gray-400 font-normal">Semua biaya telah diselesaikan via Payment Gateway</span>
+            </div>
+            <span class="text-xl font-black text-indigo-400">${formatRupiah(tx.pricing.totalToPay)}</span>
+          </div>
+        </div>
+
+        <!-- Footer Invoice Legal & Verifikasi Stempel -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-slate-800 text-[11px] text-gray-500">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-white rounded-lg inline-block shadow">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=CHUB-VERIFIED-${tx.orderId}" alt="QR Verifikasi" class="w-12 h-12">
+            </div>
+            <div>
+              <strong class="text-gray-300 block">Console Hub Digital Signature</strong>
+              <p>Faktur ini sah diterbitkan otomatis & dilindungi garansi resmi.</p>
+              <p class="font-mono text-[10px] text-indigo-400">SHA-256: ${tx.orderId}-VERIFIED-LUNAS</p>
+            </div>
+          </div>
+          <div class="text-center sm:text-right">
+            <span class="px-3 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 rounded-full font-bold text-[10px] uppercase">
+              🛡️ VERIFIED & PROTECTED
+            </span>
+            <p class="text-[10px] text-gray-400 mt-1">CS Hotline: 0812-3456-7890 (WA)</p>
+          </div>
         </div>
       </div>
 
-      <!-- Ringkasan Keuangan -->
-      <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
-        ${tx.pricing.rentSubtotal > 0 ? `
-          <div class="flex justify-between text-gray-400">
-            <span>Subtotal Sewa Konsol/Tools:</span>
-            <span class="text-gray-200">${formatRupiah(tx.pricing.rentSubtotal)}</span>
-          </div>
-        ` : ''}
-        ${tx.pricing.buySubtotal > 0 ? `
-          <div class="flex justify-between text-gray-400">
-            <span>Subtotal Beli Unit:</span>
-            <span class="text-gray-200">${formatRupiah(tx.pricing.buySubtotal)}</span>
-          </div>
-        ` : ''}
-        ${tx.pricing.securityDeposit > 0 ? `
-          <div class="flex justify-between text-amber-300">
-            <span>Deposit Jaminan Sewa (Refundable):</span>
-            <span class="font-bold">${formatRupiah(tx.pricing.securityDeposit)}</span>
-          </div>
-        ` : ''}
-        ${tx.pricing.discount > 0 || (tx.pricing.voucherDiscount && tx.pricing.voucherDiscount > 0) ? `
-          <div class="flex justify-between text-emerald-400">
-            <span>Potongan Kupon Promo:</span>
-            <span class="font-bold">- ${formatRupiah(tx.pricing.voucherDiscount || tx.pricing.discount)}</span>
-          </div>
-        ` : ''}
-        <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-sm">
-          <span class="font-bold text-gray-100">Total Telah Dibayar (Lunas):</span>
-          <span class="text-lg font-black text-indigo-400">${formatRupiah(tx.pricing.totalToPay)}</span>
-        </div>
-      </div>
-
-      ${hasRent ? `
-        <div class="p-3 bg-indigo-950/40 border border-indigo-900/60 rounded-xl text-xs text-indigo-200 space-y-1">
-          <strong class="block text-amber-300">📦 Petunjuk Pengambilan / Pengembalian Sewa:</strong>
-          <p>1. Petugas akan menghubungi WhatsApp Anda untuk koordinasi waktu antar/jemput unit.</p>
-          <p>2. Simpan invoice ini sebagai bukti sah sewa. Deposit Rp ${formatRupiah(tx.pricing.securityDeposit)} akan ditransfer kembali ke rekening Anda setelah unit diverifikasi lengkap.</p>
-        </div>
-      ` : ''}
     </div>
   `;
 
