@@ -427,30 +427,34 @@ function renderProducts() {
 
           <!-- Info Harga (Sewa & Beli berdampingan) -->
           <div class="pt-3 grid grid-cols-2 gap-2 text-xs">
+
             ${p.isRentable ? (() => {
-              const currentRentPrice = p.rentPricePerDay;
-              const originalRentPrice = p.originalRentPricePerDay;
-              const hasRentDiscount = Boolean(originalRentPrice && originalRentPrice > currentRentPrice);
-              const rentDiscountPercent = hasRentDiscount ? Math.round(((originalRentPrice - currentRentPrice) / originalRentPrice) * 100) : 0;
+              const currentRentPrice  = p.rentPricePerDay;
+              const origRentPrice     = p.originalRentPricePerDay;
+              const hasRentDiscount   = Boolean(origRentPrice && origRentPrice > currentRentPrice);
+              const rentDiscPct       = hasRentDiscount
+                ? Math.round(((origRentPrice - currentRentPrice) / origRentPrice) * 100)
+                : 0;
               return `
-                <div class="bg-indigo-950/40 p-2.5 rounded-xl border ${hasRentDiscount ? 'border-rose-900/60 bg-rose-950/20' : 'border-indigo-900/40'} flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-semibold ${hasRentDiscount ? 'text-rose-400' : 'text-indigo-400'} uppercase tracking-wider flex items-center gap-1">
-                      ${hasRentDiscount ? '🔥 Promo Sewa' : '🗓️ Tarif Sewa'}
-                    </span>
-                  </div>
-                  <div>
-                    ${hasRentDiscount ? `
-                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span style="color: #ff4d4f; font-weight: bold; font-size: 1.05em;">${formatRupiah(currentRentPrice)}</span>
-                        <span style="text-decoration: line-through; color: #8c8c8c; font-size: 0.85em;">${formatRupiah(originalRentPrice)}</span>
-                        <span style="background: #fff1f0; color: #ff4d4f; font-size: 0.75em; padding: 2px 4px; border-radius: 3px; font-weight: bold;">-${rentDiscountPercent}%</span>
-                      </div>
-                    ` : `
-                      <span class="text-indigo-300 font-black text-base block">${formatRupiah(currentRentPrice)}</span>
-                    `}
-                    <span class="text-[10px] text-gray-400">/hari · Min. deposit ${formatRupiah(p.securityDeposit)}</span>
-                  </div>
+                <div class="p-2.5 rounded-xl border flex flex-col justify-between
+                  ${hasRentDiscount
+                    ? 'border-rose-900/60 bg-rose-950/20'
+                    : 'bg-indigo-950/40 border-indigo-900/40'}">
+                  <span class="text-[10px] font-semibold uppercase tracking-wider mb-1
+                    ${hasRentDiscount ? 'text-rose-400' : 'text-indigo-400'}">
+                    ${hasRentDiscount ? '🔥 Promo Sewa' : '🗓️ Tarif Sewa'}
+                  </span>
+
+                  ${hasRentDiscount ? `
+                    <div class="price-shopee-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span style="color:#ff4d4f;font-weight:bold;font-size:1.1em;">${formatRupiah(currentRentPrice)}</span>
+                      <span style="text-decoration:line-through;color:#8c8c8c;font-size:0.85em;">${formatRupiah(origRentPrice)}</span>
+                      <span style="background:#fff1f0;color:#ff4d4f;font-size:0.75em;padding:2px 4px;border-radius:3px;font-weight:bold;">-${rentDiscPct}%</span>
+                    </div>
+                  ` : `
+                    <span class="text-indigo-300 font-black text-base block">${formatRupiah(currentRentPrice)}</span>
+                  `}
+                  <span class="text-[10px] text-gray-400 mt-0.5">/hari · Deposit ${formatRupiah(p.securityDeposit)}</span>
                 </div>
               `;
             })() : `
@@ -460,29 +464,34 @@ function renderProducts() {
             `}
 
             ${p.isBuyable ? (() => {
-              const discountPrice = p.price !== undefined ? p.price : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
-              const originalPrice = p.originalPrice || p.buyPrice || discountPrice;
-              const hasDiscount = Boolean(p.isOnSale && originalPrice > discountPrice);
-              const discountPercent = hasDiscount ? Math.round(((originalPrice - discountPrice) / originalPrice) * 100) : 0;
+              const discPrice   = p.price !== undefined
+                ? p.price
+                : ((p.isOnSale && p.discountPrice) ? p.discountPrice : p.buyPrice);
+              const origPrice   = p.originalPrice || p.buyPrice || discPrice;
+              const hasDiscount = Boolean(p.isOnSale && origPrice > discPrice);
+              const discPct     = hasDiscount
+                ? Math.round(((origPrice - discPrice) / origPrice) * 100)
+                : 0;
               return `
-                <div class="bg-teal-950/40 p-2.5 rounded-xl border ${p.isOnSale ? 'border-rose-900/60 bg-rose-950/20' : 'border-teal-900/40'} flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-semibold ${p.isOnSale ? 'text-rose-400' : 'text-teal-400'} uppercase tracking-wider flex items-center gap-1">
-                      ${p.isOnSale ? '🔥 Promo Beli' : '🛍️ Harga Beli'}
-                    </span>
-                  </div>
-                  <div>
-                    ${hasDiscount ? `
-                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span style="color: #ff4d4f; font-weight: bold; font-size: 1.05em;">${formatRupiah(discountPrice)}</span>
-                        <span style="text-decoration: line-through; color: #8c8c8c; font-size: 0.85em;">${formatRupiah(originalPrice)}</span>
-                        <span style="background: #fff1f0; color: #ff4d4f; font-size: 0.75em; padding: 2px 4px; border-radius: 3px; font-weight: bold;">-${discountPercent}%</span>
-                      </div>
-                    ` : `
-                      <span class="text-teal-300 font-black text-base block">${formatRupiah(discountPrice)}</span>
-                    `}
-                    <span class="text-[10px] text-gray-400">unit baru · Garansi 1 Th</span>
-                  </div>
+                <div class="p-2.5 rounded-xl border flex flex-col justify-between
+                  ${p.isOnSale
+                    ? 'border-rose-900/60 bg-rose-950/20'
+                    : 'bg-teal-950/40 border-teal-900/40'}">
+                  <span class="text-[10px] font-semibold uppercase tracking-wider mb-1
+                    ${p.isOnSale ? 'text-rose-400' : 'text-teal-400'}">
+                    ${p.isOnSale ? '🔥 Promo Beli' : '🛍️ Harga Beli'}
+                  </span>
+
+                  ${hasDiscount ? `
+                    <div class="price-shopee-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span style="color:#ff4d4f;font-weight:bold;font-size:1.1em;">${formatRupiah(discPrice)}</span>
+                      <span style="text-decoration:line-through;color:#8c8c8c;font-size:0.85em;">${formatRupiah(origPrice)}</span>
+                      <span style="background:#fff1f0;color:#ff4d4f;font-size:0.75em;padding:2px 4px;border-radius:3px;font-weight:bold;">-${discPct}%</span>
+                    </div>
+                  ` : `
+                    <span class="text-teal-300 font-black text-base block">${formatRupiah(discPrice)}</span>
+                  `}
+                  <span class="text-[10px] text-gray-400 mt-0.5">unit baru · Garansi 1 Th</span>
                 </div>
               `;
             })() : `
